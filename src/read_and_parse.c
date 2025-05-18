@@ -10,7 +10,6 @@ toml_parsed_t read_and_parse() {
   FILE *file = fopen("project.toml", "r");
   if (file == NULL) {
     fprintf(stderr, "Unable to open project.toml!\n");
-    fclose(file);
     exit(EXIT_FAILURE);
   }
 

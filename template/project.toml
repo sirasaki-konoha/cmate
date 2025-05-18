@@ -9,7 +9,7 @@ flags = "-Wall -Wextra -std=c99 -O2 -Iinclude -g"
 
 # libs
 # The library will be linked automatically.
-libs = [""]
+libs = []
 
 
 
