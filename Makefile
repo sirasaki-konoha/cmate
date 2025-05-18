@@ -1,6 +1,6 @@
 # Compiler and flags settings
-CC     := gcc
-CFLAGS := -Wall -Wextra -std=c99 -O2 -Iinclude -g
+CC     := clang
+CFLAGS := -Wall -Wextra -std=c99 -O2 -Iinclude -Iexternal/tomlc99 -g
 LDLIBS := 
 
 # Project name 
@@ -11,15 +11,16 @@ SRCDIR     := src
 OBJDIR     := deps/object
 BINDIR     := bin
 
+
+# TOML parser
+TOML_SRC := external/tomlc99/toml.c
+TOML_OBJ := $(OBJDIR)/external/tomlc99/toml.o
 # Binary output
 BINARY     := $(BINDIR)/$(PROJECT_NAME)
 
 # Auto-detect source files
 SOURCES    := $(wildcard $(SRCDIR)/*.c) $(wildcard $(SRCDIR)/*/*.c)
-OBJECTS    := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SOURCES))
-
-# Header files directory
-INCLUDE_DIR := include/
+OBJECTS    := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SOURCES)) $(TOML_OBJ)
 
 # Default targets
 .PHONY: all clean rebuild debug release test verbose help info
@@ -95,4 +96,9 @@ info:
 	@echo "  Sources:          $(SOURCES)"
 	@echo "  Binary output:    $(BINARY)"
 	@echo "  Project name:     $(PROJECT_NAME)"
+
+
+$(TOML_OBJ): $(TOML_SRC)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
 
