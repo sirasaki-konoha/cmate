@@ -1,3 +1,11 @@
+# Compiler and flags settings
+#CC     := {__COMPILER__} 
+#CFLAGS := -Wall -Wextra -std={__CVERSION__} -O2 -Iinclude -g
+#LDLIBS := {__LIBRARY__}
+
+# Project name 
+#PROJECT_NAME := {__PROJECT__}
+
 
 # Directory settings
 SRCDIR     := src
