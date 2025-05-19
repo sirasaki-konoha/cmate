@@ -2,14 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void create_and_write(const char *path, const char *write) {
+int create_and_write(const char *path, const char *write) {
   FILE *fp = fopen(path, "w+");
 
   if (fp == NULL) {
-    fprintf(stderr, "Unable to write %s\n", path);
-    exit(EXIT_FAILURE);
+    return 1;
   }
 
   fprintf(fp, "%s\n", write);
   fclose(fp);
+  return 0;
 }

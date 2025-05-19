@@ -1,7 +1,7 @@
 #ifndef _EMBED_FILES_H
 #define _EMBED_FILES_H
 
-static unsigned char template_main_template[];
+extern unsigned char template_main_template[];
 extern unsigned int template_main_template_len;
 extern unsigned char template_Makefile[];
 extern unsigned int template_Makefile_len;

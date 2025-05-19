@@ -55,6 +55,17 @@ void free_arrays(char **arr, int count) {
   }
 }
 
+void free_toml_parsed(toml_parsed_t toml_parsed) {
+  size_t len = 0;
+  while (toml_parsed.libraries[len])
+    len++;
+
+  free_arrays(toml_parsed.libraries, len);
+  free(toml_parsed.cflags);
+  free(toml_parsed.compiler);
+  free(toml_parsed.project_name);
+}
+
 char *format_string(const char *restrict __format, ...) {
   va_list args;
   va_start(args, __format);
@@ -80,13 +91,40 @@ char *format_string(const char *restrict __format, ...) {
   return buf;
 }
 
-void init_project() {
+int init_project() {
   char *copy = malloc(template_project_toml_len + 1);
   memcpy(copy, template_project_toml, template_project_toml_len);
   copy[template_project_toml_len] = '\0';
 
-  create_and_write("project.toml", copy);
+  printf("=> project.toml ");
+  if (create_and_write("project.toml", copy) != 0) {
+    return 1;
+  }
+#ifdef _WIN32
+  printf("OK\n");
+#else
+  printf("\x1b[32mOK\n\x1b[0m");
+#endif
 
   free(copy);
-  exit(EXIT_SUCCESS);
+  return 0;
+}
+
+/**
+ * Safe string duplication function
+ * @param s String to duplicate
+ * @return Pointer to duplicated string, NULL on error
+ */
+char *safe_strdup(const char *s) {
+  if (!s)
+    return NULL;
+
+  char *dup = malloc(strlen(s) + 1);
+  if (!dup) {
+    fprintf(stderr, "Memory allocation failed\n");
+    return NULL;
+  }
+
+  strcpy(dup, s);
+  return dup;
 }

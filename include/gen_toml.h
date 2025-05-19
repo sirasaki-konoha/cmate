@@ -15,4 +15,6 @@ char *get_str(toml_table_t *conf, const char *name);
 
 void free_arrays(char **arr, int count);
 
+void free_toml_parsed(toml_parsed_t toml_parsed);
+
 #endif /* _GEN_TOML_h */
