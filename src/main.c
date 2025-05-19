@@ -136,7 +136,7 @@ static int process_makefile(const char *toml_file, const char *output_file) {
     free_toml_parsed(tml);
     return 1;
   }
-  printf("=> Successfully generated the Makefile");
+  printf("=> Successfully generated the Makefile\n");
 
   free(makefile_content);
   free_toml_parsed(tml);

@@ -7,7 +7,7 @@
 #include <utils.h>
 
 int check_depends(toml_parsed_t parsed) {
-  printf("Check dependencies\n");
+  printf("=> Checking dependencies\n");
 
   // 1. コマンド文字列を構築
   int len = snprintf(NULL, 0, "%s --version", parsed.compiler);
@@ -35,10 +35,10 @@ int check_depends(toml_parsed_t parsed) {
 
   // 5. 結果判定
   if (exit_code != 0) {
-    printf("=> The C compiler is not set up!\n");
+    printf("=> The C compiler '%s' is not set up!\n", parsed.compiler);
     return 1;
   }
 
-  printf("=> The C Compiler is %s\n", args[0]);
+  printf("=> The C Compiler is %s\n", parsed.compiler);
   return 0;
 }

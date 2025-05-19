@@ -10,7 +10,7 @@
 char *gen_makefile(toml_parsed_t parsed) {
 
   char *cc = format_string("CC     := %s", parsed.compiler);
-  printf("=> flags: %s\n", parsed.cflags);
+  printf("=> Compile flags is %s\n", parsed.cflags);
   char *cflags = format_string("CFLAGS := %s", parsed.cflags);
   char *ldflags = format_string("LDLIBS	:=");
 
@@ -18,18 +18,26 @@ char *gen_makefile(toml_parsed_t parsed) {
   while (parsed.libraries[len])
     len++;
 
-  printf("=> libs: ");
   for (int i = 0; i < len; i++) {
+    if (i == 0) {
+      printf("=> libraries is ");
+    }
     char *tmp = ldflags;
     ldflags = format_string("%s -l%s", ldflags, parsed.libraries[i]);
-    printf("%s", parsed.libraries[i]);
+
+    if (i != len - 1) {
+      printf("%s, ", parsed.libraries[i]);
+    } else {
+      printf("%s", parsed.libraries[i]);
+    }
+
     free(tmp);
   }
   printf("\n");
 
   char *project_name =
       format_string("PROJECT_NAME     := %s", parsed.project_name);
-  printf("project: %s\n", parsed.project_name);
+  printf("=> project name is %s\n", parsed.project_name);
 
   char *copy = malloc(template_Makefile_len + 1);
   memcpy(copy, template_Makefile, template_Makefile_len);
