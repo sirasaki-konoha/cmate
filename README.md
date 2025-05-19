@@ -56,6 +56,18 @@ project/
 └── Makefile
 ```
 
+## Dependencies
+- argtable2
+- tomlc99
+- Makefile
+
+## Building
+```
+git clone --recurse-submoduleshttps://github.com/noa-vliz/gmk
+cd gmk
+make
+```
+
 ## License
 
-MIT License
+[MIT License](./LICENSE)
