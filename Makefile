@@ -1,6 +1,6 @@
 CC     := gcc
-CFLAGS := -Wall -Wextra -std=c99 -O2 -g 
-LDLIBS	:= -largtable2
+CFLAGS := -Wall -Wextra -std=c99 -O2 -g
+LDLIBS	:= -l:libargtable2.a
 PROJECT_NAME     := gmk
 SRCDIRS    :=src
 EXTRA_SOURCES :=  external/tomlc99/toml.c

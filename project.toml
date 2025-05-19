@@ -8,7 +8,7 @@ project = "gmk"
 compiler = "gcc"
 
 # Compiler flags (optimization, warnings, include paths, etc)
-flags = "-Wall -Wextra -std=c99 -O2 -g "
+flags = "-Wall -Wextra -std=c99 -O2 -g"
 
 # Source directories containing .c files
 # Default: ["src"] (if not specified)
@@ -27,7 +27,7 @@ compile = ["external/tomlc99/toml.c"]
 
 # External libraries to link against (-l flag will be added automatically)
 # Example: ["m" => links with -lm, "dl" => links with -ldl]
-libs = ["argtable2"]
+libs = [":libargtable2.a"]
 
 # Note: All paths are relative to this configuration file's location
 # ======================================================
