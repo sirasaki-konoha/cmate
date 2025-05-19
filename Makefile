@@ -26,15 +26,13 @@ INCLUDES     := $(addprefix -I,$(INCLUDE_DIRS))
 
 CFLAGS      += $(INCLUDES)
 
-# For progress reporting
+# For compile reporting with percentage
 TOTAL_FILES := $(words $(SOURCES))
 CURR_FILE := 0
-define progress-bar
+define compile-progress
 	$(eval CURR_FILE := $(shell echo $$(($(CURR_FILE) + 1))))
 	$(eval PERCENT := $(shell echo $$(($(CURR_FILE) * 100 / $(TOTAL_FILES)))))
-	@printf "\r[%-50s] %3d%% (%d/%d) Compiling: %s" \
-		"$(shell printf '=' $$(($(PERCENT) / 2)))" \
-		$(PERCENT) $(CURR_FILE) $(TOTAL_FILES) "$1"
+	@echo "[$(PERCENT)%] ($(CURR_FILE)/$(TOTAL_FILES)) Compiling: $1"
 endef
 
 # Default targets
@@ -47,18 +45,18 @@ all: $(BINARY)
 $(BINARY): $(OBJECTS)
 	@mkdir -p $(BINDIR)
 	@echo "\nLinking executable: $(BINARY)"
-	@$(CC) $^ -o $@ $(LDLIBS)
+	@$(CC) $(OBJECTS) -o $@ $(LDLIBS)
 
 # Create object files from sources (src directory)
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(dir $@)
-	$(call progress-bar,$<)
+	$(call compile-progress,$<)
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 # Create object files from extra sources (outside src directory)
 $(OBJDIR)/extra/%.o: %.c
 	@mkdir -p $(dir $@)
-	$(call progress-bar,$<)
+	$(call compile-progress,$<)
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 # Cleanup
