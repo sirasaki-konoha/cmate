@@ -4,12 +4,12 @@
 #include <stdlib.h>
 #include <toml.h>
 
-toml_parsed_t read_and_parse() {
+toml_parsed_t read_and_parse(const char *path) {
   toml_parsed_t parsed = {};
 
-  FILE *file = fopen("project.toml", "r");
+  FILE *file = fopen(path, "r");
   if (file == NULL) {
-    fprintf(stderr, "Unable to open project.toml!\n");
+    fprintf(stderr, "Unable to open %s!\n", path);
     exit(EXIT_FAILURE);
   }
 

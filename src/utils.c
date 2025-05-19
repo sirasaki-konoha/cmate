@@ -1,7 +1,10 @@
+#include "file_io.h"
+#include <embed_mkfile.h>
 #include <gen_toml.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <toml.h>
 #include <utils.h>
 
@@ -75,4 +78,15 @@ char *format_string(const char *restrict __format, ...) {
   vsnprintf(buf, len + 1, __format, args);
   va_end(args);
   return buf;
+}
+
+void init_project() {
+  char *copy = malloc(template_project_toml_len + 1);
+  memcpy(copy, template_project_toml, template_project_toml_len);
+  copy[template_project_toml_len] = '\0';
+
+  create_and_write("project.toml", copy);
+
+  free(copy);
+  exit(EXIT_SUCCESS);
 }

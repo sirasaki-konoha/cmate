@@ -1,7 +1,7 @@
 # Compiler and flags settings
 CC     := clang
 CFLAGS := -Wall -Wextra -std=c99 -O2 -Iinclude -Iexternal/tomlc99 -g
-LDLIBS := 
+LDLIBS := -largtable2
 
 # Project name 
 PROJECT_NAME := gmk
