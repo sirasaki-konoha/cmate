@@ -7,6 +7,43 @@
 #include <toml.h>
 #include <utils.h>
 
+int get_array_len(char **array) {
+  int len = 0;
+  while (array != NULL && array[len])
+    len++;
+  return len;
+}
+
+char *display_and_collect_libs(char **array, const char *message,
+                               const char *base, const char *prefix) {
+  char *result = format_string("%s", base);
+
+  int len = get_array_len(array);
+  if (len > 0) {
+    printf("[INFO] %s", message);
+
+    for (int i = 0; i < len; i++) {
+      char *tmp = result;
+      result = format_string("%s %s%s", result, prefix, array[i]);
+
+      if (i != len - 1) {
+        printf("%s, ", array[i]);
+      } else {
+        printf("%s", array[i]);
+      }
+
+      free(tmp);
+    }
+    printf("\n");
+  } else {
+    printf("[INFO] %s (none)\n", message);
+    free(result);
+    return NULL;
+  }
+
+  return result;
+}
+
 char *gen_makefile(toml_parsed_t parsed) {
   if (parsed.compiler == NULL) {
     printf("[ERROR] Compiler not specified in configuration\n");
@@ -20,35 +57,36 @@ char *gen_makefile(toml_parsed_t parsed) {
   char *cflags =
       format_string("CFLAGS := %s", parsed.cflags ? parsed.cflags : "");
 
-  char *ldflags = format_string("LDLIBS	:=");
+  char *ldflags = display_and_collect_libs(parsed.libraries,
+                                           "Libraries: ", "LDLIBS	:=", "-l");
 
-  int len = 0;
-  while (parsed.libraries != NULL && parsed.libraries[len])
-    len++;
+  if (ldflags == NULL) {
+    ldflags = safe_strdup("LDLIBS	:=");
+  }
 
-  if (len > 0) {
-    printf("[INFO] Libraries: ");
+  char *sources = display_and_collect_libs(
+      parsed.srcdirs, "Source directory: ", "SRCDIRS    :=", " ");
 
-    for (int i = 0; i < len; i++) {
-      char *tmp = ldflags;
-      ldflags = format_string("%s -l%s", ldflags, parsed.libraries[i]);
+  char *includes = display_and_collect_libs(
+      parsed.includes, "Include directory: ", "INCLUDE_DIRS :=", " ");
 
-      if (i != len - 1) {
-        printf("%s, ", parsed.libraries[i]);
-      } else {
-        printf("%s", parsed.libraries[i]);
-      }
+  if (includes == NULL)
+    includes = safe_strdup("INCLUDE_DIRS := include");
 
-      free(tmp);
-    }
-    printf("\n");
-  } else {
-    printf("[INFO] Libraries: (none)\n");
+  char *compile_files = display_and_collect_libs(
+      parsed.compile_file, "Extra sources: ", "EXTRA_SOURCES :=", " ");
+
+  if (compile_files == NULL)
+    compile_files = safe_strdup("EXTRA_SOURCES :=");
+
+  if (sources == NULL) {
+    sources = safe_strdup("SRCDIRS    :=src");
   }
 
   if (parsed.project_name == NULL) {
     printf("[ERROR] Project name not specified in configuration\n");
     free(cc);
+    free(sources);
     free(cflags);
     free(ldflags);
     return NULL;
@@ -62,6 +100,7 @@ char *gen_makefile(toml_parsed_t parsed) {
   if (copy == NULL) {
     printf("[ERROR] Failed to allocate memory for Makefile template\n");
     free(cc);
+    free(sources);
     free(cflags);
     free(ldflags);
     free(project_name);
@@ -71,16 +110,19 @@ char *gen_makefile(toml_parsed_t parsed) {
   memcpy(copy, template_Makefile, template_Makefile_len);
   copy[template_Makefile_len] = '\0';
 
-  char *prev = format_string("%s\n%s\n%s\n%s\n%s\n", cc, cflags, ldflags,
-                             project_name, copy);
+  char *prev =
+      format_string("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n", cc, cflags, ldflags,
+                    project_name, sources, compile_files, includes, copy);
 
   printf("[SUCCESS] Makefile generated successfully\n");
 
   free(cc);
   free(cflags);
-  free(ldflags);
   free(project_name);
-  free(copy);
+  free(sources);
+  free(compile_files);
+  free(includes);
+  free(ldflags);
 
   return prev;
 }

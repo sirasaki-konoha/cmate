@@ -10,13 +10,11 @@ char **split_args(const char *input) {
 
   const char *p = input;
   while (*p) {
-    // スキップ: 空白
     while (isspace((unsigned char)*p))
       p++;
     if (*p == '\0')
       break;
 
-    // トークンの開始
     const char *start = p;
     while (*p && !isspace((unsigned char)*p))
       p++;
@@ -38,7 +36,6 @@ char **split_args(const char *input) {
   return argv;
 }
 
-// メモリ解放用
 void free_args(char **argv) {
   for (size_t i = 0; argv[i] != NULL; i++) {
     free(argv[i]);

@@ -6,6 +6,9 @@ typedef struct {
   char *project_name;
   char *cflags;
   char *compiler;
+  char **compile_file;
+  char **srcdirs;
+  char **includes;
   char **libraries;
 } toml_parsed_t;
 

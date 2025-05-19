@@ -94,11 +94,7 @@ static int create_source_files(void) {
 #endif
 
   // Create file and write content
-  if (create_and_write(filepath, main_template) != 0) {
-    fprintf(stderr, "Failed to create main.c template\n");
-    result = 1;
-  }
-
+  create_not_exists(filepath, main_template);
   free(main_template);
   return result;
 }
@@ -138,7 +134,6 @@ static int process_makefile(const char *toml_file, const char *output_file) {
   }
 
   free(makefile_content);
-  free_toml_parsed(tml);
 
   return 0;
 }

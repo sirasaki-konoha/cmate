@@ -1,41 +1,65 @@
-# Compiler and flags settings
-CC     := clang
-CFLAGS := -Wall -Wextra -std=c99 -O2 -Iinclude -Iexternal/tomlc99 -g
-LDLIBS := -largtable2
-
-# Project name 
-PROJECT_NAME := gmk
-
+CC     := gcc
+CFLAGS := -Wall -Wextra -std=c99 -O2 -g 
+LDLIBS	:= -largtable2
+PROJECT_NAME     := gmk
+SRCDIRS    :=src
+EXTRA_SOURCES :=  external/tomlc99/toml.c
+INCLUDE_DIRS :=  include  external/tomlc99/
 # Directory settings
 SRCDIR     := src
 OBJDIR     := deps/object
 BINDIR     := bin
 
-
-# TOML parser
-TOML_SRC := external/tomlc99/toml.c
-TOML_OBJ := $(OBJDIR)/external/tomlc99/toml.o
 # Binary output
 BINARY     := $(BINDIR)/$(PROJECT_NAME)
 
 # Auto-detect source files
-SOURCES    := $(wildcard $(SRCDIR)/*.c) $(wildcard $(SRCDIR)/*/*.c)
-OBJECTS    := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SOURCES)) $(TOML_OBJ)
+SRCDIRS    := $(SRCDIR)
+SOURCES    := $(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.c $(dir)/*/*.c))
+
+SOURCES    := $(SOURCES) $(EXTRA_SOURCES)
+
+OBJECTS    := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(filter $(SRCDIR)/%.c,$(SOURCES))) \
+              $(patsubst %.c,$(OBJDIR)/extra/%.o,$(filter-out $(SRCDIR)/%.c,$(SOURCES)))
+
+INCLUDES     := $(addprefix -I,$(INCLUDE_DIRS))
+
+CFLAGS      += $(INCLUDES)
+
+# For progress reporting
+TOTAL_FILES := $(words $(SOURCES))
+CURR_FILE := 0
+define progress-bar
+	$(eval CURR_FILE := $(shell echo $$(($(CURR_FILE) + 1))))
+	$(eval PERCENT := $(shell echo $$(($(CURR_FILE) * 100 / $(TOTAL_FILES)))))
+	@printf "\r[%-50s] %3d%% (%d/%d) Compiling: %s" \
+		"$(shell printf '=' $$(($(PERCENT) / 2)))" \
+		$(PERCENT) $(CURR_FILE) $(TOTAL_FILES) "$1"
+endef
 
 # Default targets
 .PHONY: all clean rebuild debug release test verbose help info
 
 all: $(BINARY)
+	@echo "\nBuild complete: $(BINARY)"
 
 # Create binary executable
 $(BINARY): $(OBJECTS)
 	@mkdir -p $(BINDIR)
-	$(CC) $^ -o $@ $(LDLIBS)
+	@echo "\nLinking executable: $(BINARY)"
+	@$(CC) $^ -o $@ $(LDLIBS)
 
-# Create object files from sources
+# Create object files from sources (src directory)
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(call progress-bar,$<)
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+# Create object files from extra sources (outside src directory)
+$(OBJDIR)/extra/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(call progress-bar,$<)
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 # Cleanup
 clean:
@@ -57,6 +81,9 @@ release: all
 deps:
 	@echo "Sources:"
 	@echo $(SOURCES)
+	@echo ""
+	@echo "Include Directories:"
+	@echo $(INCLUDE_DIRS)
 	@echo ""
 	@echo "Objects:"
 	@echo $(OBJECTS)
@@ -94,11 +121,8 @@ help:
 info:
 	@echo "Project Structure:"
 	@echo "  Sources:          $(SOURCES)"
+	@echo "  Include Dirs:     $(INCLUDE_DIRS)"
 	@echo "  Binary output:    $(BINARY)"
 	@echo "  Project name:     $(PROJECT_NAME)"
 
-
-$(TOML_OBJ): $(TOML_SRC)
-	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
 

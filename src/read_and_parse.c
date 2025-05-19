@@ -27,6 +27,13 @@ toml_parsed_t read_and_parse(const char *path) {
   parsed.project_name = get_str(conf, "project");
   parsed.compiler = get_str(conf, "compiler");
   parsed.cflags = get_str(conf, "flags");
+  parsed.compile_file = get_arrays(toml_array_in(conf, "compile"), &count);
+  count = 0;
+  parsed.includes = get_arrays(toml_array_in(conf, "include"), &count);
+  count = 0;
+  parsed.srcdirs = get_arrays(toml_array_in(conf, "src"), &count);
+
+  count = 0;
   parsed.libraries = get_arrays(toml_array_in(conf, "libs"), &count);
 
   return parsed;

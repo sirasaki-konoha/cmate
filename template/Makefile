@@ -1,4 +1,3 @@
-
 # Directory settings
 SRCDIR     := src
 OBJDIR     := deps/object
@@ -8,11 +7,17 @@ BINDIR     := bin
 BINARY     := $(BINDIR)/$(PROJECT_NAME)
 
 # Auto-detect source files
-SOURCES    := $(wildcard $(SRCDIR)/*.c) $(wildcard $(SRCDIR)/*/*.c)
-OBJECTS    := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SOURCES))
+SRCDIRS    := $(SRCDIR)
+SOURCES    := $(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.c $(dir)/*/*.c))
 
-# Header files directory
-INCLUDE_DIR := include/
+SOURCES    := $(SOURCES) $(EXTRA_SOURCES)
+
+OBJECTS    := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(filter $(SRCDIR)/%.c,$(SOURCES))) \
+              $(patsubst %.c,$(OBJDIR)/extra/%.o,$(filter-out $(SRCDIR)/%.c,$(SOURCES)))
+
+INCLUDES     := $(addprefix -I,$(INCLUDE_DIRS))
+
+CFLAGS      += $(INCLUDES)
 
 # For progress reporting
 TOTAL_FILES := $(words $(SOURCES))
@@ -37,8 +42,14 @@ $(BINARY): $(OBJECTS)
 	@echo "\nLinking executable: $(BINARY)"
 	@$(CC) $^ -o $@ $(LDLIBS)
 
-# Create object files from sources
+# Create object files from sources (src directory)
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
+	@mkdir -p $(dir $@)
+	$(call progress-bar,$<)
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+# Create object files from extra sources (outside src directory)
+$(OBJDIR)/extra/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(call progress-bar,$<)
 	@$(CC) $(CFLAGS) -c $< -o $@
@@ -63,6 +74,9 @@ release: all
 deps:
 	@echo "Sources:"
 	@echo $(SOURCES)
+	@echo ""
+	@echo "Include Directories:"
+	@echo $(INCLUDE_DIRS)
 	@echo ""
 	@echo "Objects:"
 	@echo $(OBJECTS)
@@ -100,5 +114,6 @@ help:
 info:
 	@echo "Project Structure:"
 	@echo "  Sources:          $(SOURCES)"
+	@echo "  Include Dirs:     $(INCLUDE_DIRS)"
 	@echo "  Binary output:    $(BINARY)"
 	@echo "  Project name:     $(PROJECT_NAME)"
