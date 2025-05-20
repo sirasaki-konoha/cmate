@@ -63,7 +63,7 @@ project/
 
 ## Building
 ```
-git clone --recurse-submoduleshttps://github.com/noa-vliz/gmk
+git clone --recurse-submodules https://github.com/noa-vliz/gmk
 cd gmk
 make
 ```
