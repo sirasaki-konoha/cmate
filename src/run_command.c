@@ -45,7 +45,6 @@ int run_command(const char *cmd, char *const argv[]) {
   CloseHandle(nullHandle);
 
   if (!success) {
-    fprintf(stderr, "CreateProcess failed\n");
     return -1;
   }
 
