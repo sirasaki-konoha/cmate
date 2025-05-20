@@ -20,7 +20,7 @@ char *display_and_collect_libs(char **array, const char *message,
 
   int len = get_array_len(array);
   if (len > 0) {
-    printf("[INFO] %s", message);
+    printf("=> %s", message);
 
     for (int i = 0; i < len; i++) {
       char *tmp = result;
@@ -36,7 +36,7 @@ char *display_and_collect_libs(char **array, const char *message,
     }
     printf("\n");
   } else {
-    printf("[INFO] %s (none)\n", message);
+    printf("=> %s (none)\n", message);
     free(result);
     return NULL;
   }
@@ -45,15 +45,26 @@ char *display_and_collect_libs(char **array, const char *message,
 }
 
 char *gen_makefile(toml_parsed_t parsed) {
-  if (parsed.compiler == NULL) {
-    printf("[ERROR] Compiler not specified in configuration\n");
-    return NULL;
+
+  char *cc = NULL;
+
+  if (parsed.compiler == NULL || strcmp(parsed.compiler, "auto") == 0) {
+    char *compiler = auto_detect_compiler();
+    if (compiler == NULL) {
+      printf("!!! The C compiler is not installed!\n");
+      return NULL;
+    }
+    printf("=> The C compiler is %s(auto)\n", compiler);
+    cc = format_string("CC     := %s", compiler);
+  } else {
+    char *result = check_depends(parsed);
+    if (result == NULL) {
+      return NULL;
+    }
+    cc = format_string("CC     := %s", parsed.compiler);
   }
 
-  char *cc = format_string("CC     := %s", parsed.compiler);
-
-  printf("[INFO] Compile flags: %s\n",
-         parsed.cflags ? parsed.cflags : "(none)");
+  printf("=> Compile flags: %s\n", parsed.cflags ? parsed.cflags : "(none)");
   char *cflags =
       format_string("CFLAGS := %s", parsed.cflags ? parsed.cflags : "");
 
@@ -84,7 +95,7 @@ char *gen_makefile(toml_parsed_t parsed) {
   }
 
   if (parsed.project_name == NULL) {
-    printf("[ERROR] Project name not specified in configuration\n");
+    printf("!!! Project name not specified in configuration\n");
     free(cc);
     free(sources);
     free(cflags);
@@ -92,13 +103,13 @@ char *gen_makefile(toml_parsed_t parsed) {
     return NULL;
   }
 
-  printf("[INFO] Project name: %s\n", parsed.project_name);
+  printf("=> Project name: %s\n", parsed.project_name);
   char *project_name =
       format_string("PROJECT_NAME     := %s", parsed.project_name);
 
   char *copy = malloc(template_Makefile_len + 1);
   if (copy == NULL) {
-    printf("[ERROR] Failed to allocate memory for Makefile template\n");
+    printf("!!! Failed to allocate memory for Makefile template\n");
     free(cc);
     free(sources);
     free(cflags);

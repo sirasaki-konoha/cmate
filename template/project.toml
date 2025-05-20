@@ -5,7 +5,9 @@
 project = "template"
 
 # [Required] C compiler to use (gcc/clang/etc)
-compiler = "gcc"
+# Use "auto" to automatically detect the host's default C compiler,
+# or leave unspecified to use the default compiler.
+compiler = "auto"
 
 # Compiler flags (optimization, warnings, include paths, etc)
 flags = "-Wall -Wextra -std=c99 -O2 -g"

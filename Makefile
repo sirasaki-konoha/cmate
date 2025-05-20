@@ -9,26 +9,26 @@ PROJECT_NAME     := gmk
 SRCDIRS    :=src
 EXTRA_SOURCES :=  external/tomlc99/toml.c
 INCLUDE_DIRS :=  include  external/tomlc99/
+
 # Directory settings
-SRCDIR     := src
 OBJDIR     := deps/object
 BINDIR     := bin
 
 # Binary output
 BINARY     := $(BINDIR)/$(PROJECT_NAME)
 
-# Auto-detect source files
-SRCDIRS    := $(SRCDIR)
+# Auto-detect source files from all source directories
 SOURCES    := $(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.c $(dir)/*/*.c))
 
+# Add any extra sources specified
 SOURCES    := $(SOURCES) $(EXTRA_SOURCES)
 
-OBJECTS    := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(filter $(SRCDIR)/%.c,$(SOURCES))) \
-              $(patsubst %.c,$(OBJDIR)/extra/%.o,$(filter-out $(SRCDIR)/%.c,$(SOURCES)))
+# Generate object file paths
+OBJECTS    := $(patsubst %.c,$(OBJDIR)/%.o,$(SOURCES))
 
-INCLUDES     := $(addprefix -I,$(INCLUDE_DIRS))
-
-CFLAGS      += $(INCLUDES)
+# Include directories
+INCLUDES   := $(addprefix -I,$(INCLUDE_DIRS))
+CFLAGS     += $(INCLUDES)
 
 # For compile reporting with percentage
 TOTAL_FILES := $(words $(SOURCES))
@@ -51,14 +51,8 @@ $(BINARY): $(OBJECTS)
 	@echo "\nLinking executable: $(BINARY)"
 	@$(CC) $(OBJECTS) -o $@ $(LDLIBS)
 
-# Create object files from sources (src directory)
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
-	@mkdir -p $(dir $@)
-	$(call compile-progress,$<)
-	@$(CC) $(CFLAGS) -c $< -o $@
-
-# Create object files from extra sources (outside src directory)
-$(OBJDIR)/extra/%.o: %.c
+# Create object files from sources (unified rule)
+$(OBJDIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(call compile-progress,$<)
 	@$(CC) $(CFLAGS) -c $< -o $@
@@ -83,6 +77,9 @@ release: all
 deps:
 	@echo "Sources:"
 	@echo $(SOURCES)
+	@echo ""
+	@echo "Source Directories:"
+	@echo $(SRCDIRS)
 	@echo ""
 	@echo "Include Directories:"
 	@echo $(INCLUDE_DIRS)
@@ -122,6 +119,7 @@ help:
 # Show project structure
 info:
 	@echo "Project Structure:"
+	@echo "  Source Dirs:      $(SRCDIRS)"
 	@echo "  Sources:          $(SOURCES)"
 	@echo "  Include Dirs:     $(INCLUDE_DIRS)"
 	@echo "  Binary output:    $(BINARY)"

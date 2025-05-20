@@ -3,13 +3,55 @@
 #include <gen_toml.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <toml.h>
 #include <utils.h>
 
-int check_depends(toml_parsed_t parsed) {
-  printf("[INFO] Checking dependencies\n");
+char *auto_detect_compiler() {
+  char *compilers[] = {"clang", "gcc", NULL};
+  int len = get_array_len(compilers);
+  char *detect_compiler = NULL;
 
-  // 1. コマンド文字列を構築
+  for (int i = 0; i < len; i++) {
+    char *current_compiler = compilers[i];
+    int len = snprintf(NULL, 0, "%s --version", current_compiler);
+    char *compiler = malloc(len + 1);
+    if (compiler == NULL) {
+      perror("malloc failed");
+      exit(EXIT_FAILURE);
+    }
+    snprintf(compiler, len + 1, "%s --version", current_compiler);
+
+    char **args = split_args(compiler);
+    if (args == NULL || args[0] == NULL) {
+      printf("=> Failed to parse command\n");
+      free(compiler);
+      continue;
+    }
+
+    int exit_code = run_command(args[0], args);
+    free_args(args);
+    free(compiler);
+
+    if (exit_code != 0) {
+      continue;
+    }
+
+    detect_compiler = current_compiler;
+    break;
+  }
+
+  return detect_compiler;
+}
+
+char *check_depends(toml_parsed_t parsed) {
+  printf("=> Checking dependencies\n");
+
+  if (parsed.compiler == NULL) {
+    printf("!!! Compiler is not specified in configuration\n");
+    return NULL;
+  }
+
   int len = snprintf(NULL, 0, "%s --version", parsed.compiler);
   char *compiler = malloc(len + 1);
   if (compiler == NULL) {
@@ -18,27 +60,23 @@ int check_depends(toml_parsed_t parsed) {
   }
   snprintf(compiler, len + 1, "%s --version", parsed.compiler);
 
-  // 2. 引数を分割 (例: "gcc --version" → ["gcc", "--version", NULL])
   char **args = split_args(compiler);
   if (args == NULL || args[0] == NULL) {
     printf("=> Failed to parse command\n");
     free(compiler);
-    return 1;
+    return NULL;
   }
 
-  // 3. コマンド実行
   int exit_code = run_command(args[0], args);
 
-  // 4. メモリ解放
   free(compiler);
   free_args(args);
 
-  // 5. 結果判定
   if (exit_code != 0) {
-    printf("[ERROR] The C compiler '%s' is not set up!\n", parsed.compiler);
-    return 1;
+    printf("!!! The C compiler '%s' is not set up!\n", parsed.compiler);
+    return NULL;
   }
 
-  printf("[INFO] The C Compiler is %s\n", parsed.compiler);
-  return 0;
+  printf("=> The C Compiler is %s\n", parsed.compiler);
+  return parsed.compiler;
 }

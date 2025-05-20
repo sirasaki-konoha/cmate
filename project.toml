@@ -4,8 +4,10 @@
 # [Required] Project name (used for executable name)
 project = "gmk"
 
-# [Required] C compiler to use (gcc/clang/etc)
-compiler = "clang"
+# [Advanced] C compiler to use (gcc/clang/etc)
+# Use "auto" to automatically detect the host's default C compiler,
+# or leave unspecified to use the default compiler.
+compiler = "auto"
 
 # Compiler flags (optimization, warnings, include paths, etc)
 flags = "-Wall -Wextra -std=c99 -O2 -g"

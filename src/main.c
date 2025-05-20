@@ -18,7 +18,7 @@
 #define MKDIR(dir) mkdir(dir, 0755)
 #endif
 
-#define GMK_VERSION "1.0"
+#define GMK_VERSION "1.1"
 #define GMK_COPYRIGHT "Copyright (C) 2025 noa-vliz."
 #define GMK_LICENSE "Licensed under the MIT License"
 #define GMK_SOURCE "Source: https://github.com/noa-vliz/gmk"
@@ -115,9 +115,6 @@ static int process_makefile(const char *toml_file, const char *output_file) {
   toml_parsed_t tml = read_and_parse(toml_file);
 
   // Generate Makefile content
-  if (check_depends(tml) != 0) {
-    return 1;
-  }
   char *makefile_content = gen_makefile(tml);
   if (!makefile_content) {
     fprintf(stderr, "Failed to generate Makefile content\n");
