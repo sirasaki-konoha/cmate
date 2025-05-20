@@ -164,7 +164,10 @@ static int argparse(int argc, char **argv){
         args[j]->count++;
         if(args[j]->takes != NULL){
           args[j]->value = argv[++i];
-          if(args[j]->value == NULL) m = 0;
+          if(args[j]->value == NULL){
+            r++;
+            fprintf(stderr, "%s: missing argument: %s\n", argv[0], argv[i - 1]);
+          }
         }
         break;
       }
