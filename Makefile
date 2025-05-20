@@ -2,7 +2,7 @@
 # You can build the project simply by running make without any modifications.
 # If you find any bugs, please submit a PR or open an issue at: https://github.com/noa-vliz/gmk
 
-CC     := clang
+CC     := gcc
 CFLAGS := -Wall -Wextra -std=c99 -O2 -g
 LDLIBS	:=
 PROJECT_NAME     := gmk
