@@ -4,7 +4,7 @@
 
 CC     := clang
 CFLAGS := -Wall -Wextra -std=c99 -O2 -g
-LDLIBS	:= -l:libargtable2.a
+LDLIBS	:=
 PROJECT_NAME     := gmk
 SRCDIRS    :=src
 EXTRA_SOURCES :=  external/tomlc99/toml.c

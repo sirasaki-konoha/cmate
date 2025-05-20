@@ -1,4 +1,3 @@
-#include <argtable2.h>
 #include <embed_mkfile.h>
 #include <errno.h>
 #include <file_io.h>
@@ -8,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <utils.h>
+
+#include <stb_ds.h>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -29,6 +30,16 @@
 #define INCLUDE_DIR "include"
 #define MAIN_C_FILE "main.c"
 
+typedef struct {
+	const char* shortarg;
+	const char* longarg;
+	const char* takes;
+	const char* help;
+	char* value;
+	int count;
+} gmk_arg_t;
+gmk_arg_t **args = NULL;
+
 /**
  * Display version information
  */
@@ -43,10 +54,15 @@ static void display_version(void) {
  * Display help message
  * @param argtable Argument table
  */
-static void display_help(void **argtable) {
+static void display_help(void) {
+  int i;
   printf("Usage: \n");
-  arg_print_syntax(stdout, argtable, "\n");
-  arg_print_glossary(stdout, argtable, "  %-25s %s\n");
+  for(i = 0; i < arrlen(args); i++){
+    char buf[512];
+    sprintf(buf, "-%s --%s", args[i]->shortarg, args[i]->longarg);
+    if(args[i]->takes != NULL) sprintf(buf + strlen(buf), " %s", args[i]->takes);
+    printf("  %-25s %s\n", buf, args[i]->help);
+  }
 }
 
 /**
@@ -135,54 +151,73 @@ static int process_makefile(const char *toml_file, const char *output_file) {
   return 0;
 }
 
-int main(int argc, char *argv[]) {
-  // Define command line arguments
-  struct arg_lit *help = arg_lit0("h", "help", "Display this help message");
-  struct arg_str *output =
-      arg_str0("o", "output", "<file>",
-               "Change the output file destination (default: Makefile)");
-  struct arg_str *toml =
-      arg_str0("t", "toml", "<file>",
-               "Change the TOML file to parse (default: project.toml)");
-  struct arg_lit *version = arg_lit0("v", "version", "Display version info");
-  struct arg_lit *init = arg_lit0("i", "init", "Generate a project.toml file");
-  struct arg_end *end = arg_end(20);
+static int argparse(int argc, char **argv){
+  int i, j;
+  int r = 0;
+  for(i = 1; i < argc; i++){
+    int m = 0;
+    for(j = 0; j < arrlen(args); j++){
+      int s = strlen(argv[i]) > 1 ? ((argv[i][0] == '-' && strcmp(argv[i] + 1, args[j]->shortarg) == 0) ? 1 : 0) : 0;
+      int l = strlen(argv[i]) > 2 ? ((argv[i][0] == '-' && argv[i][1] == '-' && strcmp(argv[i] + 2, args[j]->longarg) == 0) ? 1 : 0) : 0;
+      if(s || l){
+        m = 1;
+        args[j]->count++;
+        if(args[j]->takes != NULL){
+          args[j]->value = argv[++i];
+          if(args[j]->value == NULL) m = 0;
+        }
+        break;
+      }
+    }
+    if(!m){
+      r++;
+      fprintf(stderr, "%s: invalid flag: %s\n", argv[0], argv[i]);
+    }
+  }
+  return r;
+}
 
-  void *argtable[] = {help, output, toml, version, init, end};
+int main(int argc, char **argv) {
+  // Define command line arguments
+  gmk_arg_t help = {"h", "help", NULL, "Display this help message", NULL, 0};
+  gmk_arg_t output = {"o", "output", "<file>", "Change the output file destination (default: Makefile)", NULL, 0};
+  gmk_arg_t toml = {"t", "toml", "<file>", "Change the TOML file to parse (default: project.toml)", NULL, 0};
+  gmk_arg_t version = {"v", "version", NULL, "Display version info", NULL, 0};
+  gmk_arg_t init = {"i", "init", NULL, "Generate a project.toml file", NULL, 0};
+
   int exit_code = EXIT_SUCCESS;
   char *output_file = NULL;
   char *toml_file = NULL;
+  int nerrors = 0;
 
-  // Validate argtable
-  if (arg_nullcheck(argtable) != 0) {
-    fprintf(stderr, "Failed to build argtable\n");
-    return EXIT_FAILURE;
-  }
+  arrput(args, &help);
+  arrput(args, &output);
+  arrput(args, &toml);
+  arrput(args, &version);
+  arrput(args, &init);
 
-  // Parse arguments
-  int nerrors = arg_parse(argc, argv, argtable);
+  nerrors = argparse(argc, argv);
 
   // Display help message
-  if (help->count > 0) {
-    display_help(argtable);
+  if (help.count > 0) {
+    display_help();
     goto cleanup;
   }
 
   // Display error messages
   if (nerrors > 0) {
-    arg_print_errors(stderr, end, argv[0]);
     exit_code = EXIT_FAILURE;
     goto cleanup;
   }
 
   // Display version information
-  if (version->count > 0) {
+  if (version.count > 0) {
     display_version();
     goto cleanup;
   }
 
   // Initialize project
-  if (init->count > 0) {
+  if (init.count > 0) {
     if (init_project() != 0) {
       fprintf(stderr, "Failed to initialize project\n");
       exit_code = EXIT_FAILURE;
@@ -193,8 +228,8 @@ int main(int argc, char *argv[]) {
 
   // Set file paths
   output_file =
-      safe_strdup(output->count > 0 ? output->sval[0] : DEFAULT_OUTPUT_FILE);
-  toml_file = safe_strdup(toml->count > 0 ? toml->sval[0] : DEFAULT_TOML_FILE);
+      safe_strdup(output.count > 0 ? output.value : DEFAULT_OUTPUT_FILE);
+  toml_file = safe_strdup(toml.count > 0 ? toml.value : DEFAULT_TOML_FILE);
 
   if (!output_file || !toml_file) {
     fprintf(stderr, "Memory allocation failed\n");
@@ -218,7 +253,6 @@ cleanup:
   // Release resources
   free(output_file);
   free(toml_file);
-  arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
 
   return exit_code;
 }

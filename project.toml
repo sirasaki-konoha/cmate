@@ -29,7 +29,7 @@ compile = ["external/tomlc99/toml.c"]
 
 # External libraries to link against (-l flag will be added automatically)
 # Example: ["m" => links with -lm, "dl" => links with -ldl]
-libs = [":libargtable2.a"]
+libs = []
 
 # Note: All paths are relative to this configuration file's location
 # ======================================================
