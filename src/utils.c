@@ -50,21 +50,48 @@ char **get_arrays(toml_array_t *arr, int *out_count) {
 }
 
 void free_arrays(char **arr, int count) {
+  if (!arr) return;
   for (int i = 0; i < count; i++) {
     free(arr[i]);
   }
+  free(arr);
 }
 
-void free_toml_parsed(toml_parsed_t toml_parsed) {
-  size_t len = 0;
-  while (toml_parsed.libraries[len])
-    len++;
-
-  free_arrays(toml_parsed.libraries, len);
-  free(toml_parsed.cflags);
-  free(toml_parsed.compiler);
-  free(toml_parsed.project_name);
+/**
+ * Free an array of toml_parsed_t structures and their contents.
+ * @param toml_parsed Array of toml_parsed_t
+ * @param count       Number of elements in the array
+ */
+void free_toml_parsed(toml_parsed_t *toml_parsed, int count) {
+  if (!toml_parsed) return;
+  for (int i = 0; i < count; i++) {
+    int n = 0;
+    if (toml_parsed[i].libraries) {
+      while (toml_parsed[i].libraries[n]) n++;
+      free_arrays(toml_parsed[i].libraries, n);
+    }
+    n = 0;
+    if (toml_parsed[i].includes) {
+      while (toml_parsed[i].includes[n]) n++;
+      free_arrays(toml_parsed[i].includes, n);
+    }
+    n = 0;
+    if (toml_parsed[i].srcdirs) {
+      while (toml_parsed[i].srcdirs[n]) n++;
+      free_arrays(toml_parsed[i].srcdirs, n);
+    }
+    n = 0;
+    if (toml_parsed[i].compile_file) {
+      while (toml_parsed[i].compile_file[n]) n++;
+      free_arrays(toml_parsed[i].compile_file, n);
+    }
+    free(toml_parsed[i].cflags);
+    free(toml_parsed[i].compiler);
+    free(toml_parsed[i].project_name);
+  }
+  free(toml_parsed);
 }
+
 
 char *format_string(const char *restrict __format, ...) {
   va_list args;

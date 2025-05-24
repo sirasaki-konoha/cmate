@@ -44,21 +44,21 @@ char *auto_detect_compiler() {
   return detect_compiler;
 }
 
-char *check_depends(toml_parsed_t parsed) {
+char *check_depends(toml_parsed_t *parsed) {
   printf("=> Checking dependencies\n");
 
-  if (parsed.compiler == NULL) {
+  if (parsed->compiler == NULL) {
     printf("!!! Compiler is not specified in configuration\n");
     return NULL;
   }
 
-  int len = snprintf(NULL, 0, "%s --version", parsed.compiler);
+  int len = snprintf(NULL, 0, "%s --version", parsed->compiler);
   char *compiler = malloc(len + 1);
   if (compiler == NULL) {
     perror("malloc failed");
     exit(EXIT_FAILURE);
   }
-  snprintf(compiler, len + 1, "%s --version", parsed.compiler);
+  snprintf(compiler, len + 1, "%s --version", parsed->compiler);
 
   char **args = split_args(compiler);
   if (args == NULL || args[0] == NULL) {
@@ -73,10 +73,10 @@ char *check_depends(toml_parsed_t parsed) {
   free_args(args);
 
   if (exit_code != 0) {
-    printf("!!! The C compiler '%s' is not set up!\n", parsed.compiler);
+    printf("!!! The C compiler '%s' is not set up!\n", parsed->compiler);
     return NULL;
   }
 
-  printf("=> The C Compiler is %s\n", parsed.compiler);
-  return parsed.compiler;
+  printf("=> The C Compiler is %s\n", parsed->compiler);
+  return parsed->compiler;
 }

@@ -21,7 +21,7 @@ char *display_and_collect_libs(char **array, const char *message,
 
   int len = get_array_len(array);
   if (len > 0) {
-      printf("%s %s", GREEN("=>") ,message);
+    printf("%s %s", GREEN("=>"), message);
 
     for (int i = 0; i < len; i++) {
       char *tmp = result;
@@ -45,105 +45,134 @@ char *display_and_collect_libs(char **array, const char *message,
   return result;
 }
 
-char *gen_makefile(toml_parsed_t parsed) {
-
-  char *cc = NULL;
-
-  if (parsed.compiler == NULL || strcmp(parsed.compiler, "auto") == 0) {
-    char *compiler = auto_detect_compiler();
-    if (compiler == NULL) {
-      ERROR("The C compiler is not installed!\n");
-      return NULL;
-    }
-    INFO("The C compiler is %s(auto)\n", compiler);
-    cc = format_string("CC     := %s", compiler);
-  } else {
-    char *result = check_depends(parsed);
-    if (result == NULL) {
-      return NULL;
-    }
-    cc = format_string("CC     := %s", parsed.compiler);
-  }
-
-  INFO("Compile flags: %s\n",
-           parsed.cflags ? parsed.cflags : "(none)");
-
-  char *cflags =
-      format_string("CFLAGS := %s", parsed.cflags ? parsed.cflags : "");
-
-  char *ldflags = display_and_collect_libs(
-      parsed.libraries, "Libraries: ", "LDLIBS	:=", "-l");
-
-  if (ldflags == NULL) {
-    ldflags = safe_strdup("LDLIBS	:=");
-  }
-
-  char *sources = display_and_collect_libs(
-      parsed.srcdirs, "Source directory: ", "SRCDIRS    :=", " ");
-
-  char *includes = display_and_collect_libs(
-      parsed.includes, "Include directory: ", "INCLUDE_DIRS :=", " ");
-
-  if (includes == NULL)
-    includes = safe_strdup("INCLUDE_DIRS := include");
-
-  char *compile_files = display_and_collect_libs(
-      parsed.compile_file, "Extra sources: ", "EXTRA_SOURCES :=", " ");
-
-  if (compile_files == NULL)
-    compile_files = safe_strdup("EXTRA_SOURCES :=");
-
-  if (sources == NULL) {
-    sources = safe_strdup("SRCDIRS    :=src");
-  }
-
-  if (parsed.project_name == NULL) {
-    ERROR("Project name not specified in configuration\n");
-    free(cc);
-    free(sources);
-    free(cflags);
-    free(ldflags);
+char *gen_makefile(toml_parsed_t *parsed, int count) {
+  if (count <= 0 || parsed == NULL) {
+    ERROR("No project configuration found.\n");
     return NULL;
   }
 
-  INFO("Project name: %s\n", parsed.project_name);
-  char *project_name =
-      format_string("PROJECT_NAME     := %s", parsed.project_name);
+  char *project_names = NULL;
+  for (int i = 0; i < count; ++i) {
+    if (!parsed[i].project_name) {
+      ERROR("Project name not specified in configuration for entry %d\n", i);
+      return NULL;
+      break;
+    }
+
+    if (i == 0) {
+      INFO("Project names: ");
+    }
+    char *tmp = project_names;
+    project_names = format_string("%s%s%s", tmp ? tmp : "", (tmp ? " " : ""),
+                                  parsed[i].project_name);
+
+    if (i != count) {
+      printf("%s, ", parsed[i].project_name);
+    } else {
+      printf("%s", parsed[i].project_name);
+    }
+
+    if (tmp)
+      free(tmp);
+  }
+  printf("\n");
+
+  char *project_names_line =
+      format_string("PROJECT_NAMES := %s", project_names);
+
+  free(project_names);
+
+  char *all_vars = safe_strdup("");
+  for (int i = 0; i < count; ++i) {
+    toml_parsed_t *p = &parsed[i];
+    printf("%s %s %s\n", YELLOW("===="), p->project_name, YELLOW("===="));
+
+    char *cc = NULL;
+    if (p->compiler == NULL || strcmp(p->compiler, "auto") == 0) {
+      char *compiler = auto_detect_compiler();
+      if (compiler == NULL) {
+        ERROR("The C compiler is not installed!\n");
+        INFO("%s: The C compiler is not installed!\n", p->project_name);
+        free(all_vars);
+        free(project_names_line);
+        return NULL;
+      }
+      cc = format_string("CC_%s := %s", p->project_name, compiler);
+      INFO("%s: The C compiler is %s(auto)\n", p->project_name, compiler);
+    } else {
+      char *result = check_depends(p);
+      if (result == NULL) {
+        free(all_vars);
+        free(project_names_line);
+        return NULL;
+      }
+      cc = format_string("CC_%s := %s", p->project_name, p->compiler);
+      free(result);
+    }
+
+    char *cflags = format_string("CFLAGS_%s := %s", p->project_name,
+                                 p->cflags ? p->cflags : "");
+
+    char *ldlibs = display_and_collect_libs(
+        p->libraries, format_string("%s: Libraries: ", p->project_name),
+        format_string("LDLIBS_%s :=", p->project_name), "-l");
+    if (!ldlibs)
+      ldlibs = format_string("LDLIBS_%s :=", p->project_name);
+
+    char *srcdirs = display_and_collect_libs(
+        p->srcdirs, format_string("%s: Source directory: ", p->project_name),
+        format_string("SRCDIRS_%s :=", p->project_name), " ");
+    if (!srcdirs)
+      srcdirs = format_string("SRCDIRS_%s := src", p->project_name);
+
+    char *includes = display_and_collect_libs(
+        p->includes, format_string("%s: Include directory: ", p->project_name),
+        format_string("INCLUDE_DIRS_%s :=", p->project_name), " ");
+    if (!includes)
+      includes = format_string("INCLUDE_DIRS_%s := include", p->project_name);
+
+    char *compile_files = display_and_collect_libs(
+        p->compile_file, format_string("%s: Extra sources: ", p->project_name),
+        format_string("EXTRA_SOURCES_%s :=", p->project_name), " ");
+    if (!compile_files)
+      compile_files = format_string("EXTRA_SOURCES_%s :=", p->project_name);
+
+    char *tmp = all_vars;
+    all_vars = format_string("%s\n%s\n%s\n%s\n%s\n%s\n%s\n", tmp, cc, cflags,
+                             ldlibs, srcdirs, includes, compile_files);
+    free(tmp);
+    free(cc);
+    free(cflags);
+    free(ldlibs);
+    free(srcdirs);
+    free(includes);
+    free(compile_files);
+  }
 
   char *copy = malloc(template_Makefile_len + 1);
-  if (copy == NULL) {
+  if (!copy) {
     ERROR("Failed to allocate memory for Makefile template\n");
-    free(cc);
-    free(sources);
-    free(cflags);
-    free(ldflags);
-    free(project_name);
+    free(all_vars);
+    free(project_names_line);
     return NULL;
   }
-
   memcpy(copy, template_Makefile, template_Makefile_len);
   copy[template_Makefile_len] = '\0';
 
   const char *first =
       "# This Makefile was automatically generated by cate.\n"
-      "# You can build the project simply by running make without any "
-      "modifications.\n"
+      "# You can build all binaries simply by running make.\n"
       "# If you find any bugs, please submit a PR or open an issue at: "
       "https://github.com/rock-db/cate\n";
 
-  char *prev = format_string("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n\n", first,
-                             cc, cflags, ldflags, project_name, sources,
-                             compile_files, includes, copy);
+  char *result = format_string("%s\n%s\n%s\n%s\n", first, project_names_line,
+                               all_vars, copy);
 
   printf("[SUCCESS] Makefile generated successfully\n");
 
-  free(cc);
-  free(cflags);
-  free(project_name);
-  free(sources);
-  free(compile_files);
-  free(includes);
-  free(ldflags);
+  free(project_names_line);
+  free(all_vars);
+  free(copy);
 
-  return prev;
+  return result;
 }
