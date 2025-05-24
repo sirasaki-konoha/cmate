@@ -60,14 +60,14 @@ typedef struct {
   const char *help;
   char *value;
   int count;
-} gmk_arg_t;
-gmk_arg_t **args = NULL;
+} cate_arg_t;
+cate_arg_t **args = NULL;
 
 /**
  * Display version information
  */
 static void display_version(void) {
-  printf("gmk %s\n", CATE_VERSION);
+  printf("cate %s\n", CATE_VERSION);
   printf("%s\n", CATE_COPYRIGHT);
   printf("%s\n", CATE_LICENSE);
   printf("%s\n", CATE_SOURCE);
@@ -245,18 +245,18 @@ int main(int argc, char **argv) {
 #endif
 
       // Define command line arguments
-      gmk_arg_t help = {"h",  "help", NULL, "Display this help message",
+      cate_arg_t help = {"h",  "help", NULL, "Display this help message",
                         NULL, 0};
-  gmk_arg_t output = {
+  cate_arg_t output = {
       "o",      "output",
       "<file>", "Change the output file destination (default: Makefile)",
       NULL,     0};
-  gmk_arg_t toml = {
+  cate_arg_t toml = {
       "t",      "toml",
       "<file>", "Change the TOML file to parse (default: project.toml)",
       NULL,     0};
-  gmk_arg_t version = {"v", "version", NULL, "Display version info", NULL, 0};
-  gmk_arg_t init = {"i", "init", NULL, "Generate a project.toml file", NULL, 0};
+  cate_arg_t version = {"v", "version", NULL, "Display version info", NULL, 0};
+  cate_arg_t init = {"i", "init", NULL, "Generate a project.toml file", NULL, 0};
 
   int exit_code = EXIT_SUCCESS;
   char *output_file = NULL;
