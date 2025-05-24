@@ -1,3 +1,4 @@
+#include "term_color.h"
 #include <embed_mkfile.h>
 #include <errno.h>
 #include <file_io.h>
@@ -20,9 +21,9 @@
 #endif
 
 #define GMK_VERSION "1.1"
-#define GMK_COPYRIGHT "Copyright (C) 2025 noa-vliz."
+#define GMK_COPYRIGHT "Copyright (C) 2025 noa-vliz, rock-db."
 #define GMK_LICENSE "Licensed under the MIT License"
-#define GMK_SOURCE "Source: https://github.com/noa-vliz/gmk"
+#define GMK_SOURCE "Source: https://github.com/rock-db/cate"
 
 #define DEFAULT_OUTPUT_FILE "Makefile"
 #define DEFAULT_TOML_FILE "project.toml"
@@ -76,7 +77,7 @@ static int create_source_files(void) {
   if (MKDIR(SRC_DIRECTORY) != 0) {
     // Not an error if directory already exists
     if (errno != EEXIST) {
-      fprintf(stderr, "Failed to create source directory\n");
+      ERROR("Failed to create source directory\n");
       return 1;
     }
   }
@@ -85,7 +86,7 @@ static int create_source_files(void) {
   if (MKDIR(INCLUDE_DIR) != 0) {
     // Not an error if directory already exists
     if (errno != EEXIST) {
-      fprintf(stderr, "Failed to create include directory\n");
+      ERROR("Failed to create include directory\n");
       return 1;
     }
   }
@@ -93,7 +94,7 @@ static int create_source_files(void) {
   // Allocate memory for main.c template
   char *main_template = malloc(template_main_template_len + 1);
   if (!main_template) {
-    fprintf(stderr, "Memory allocation failed for template\n");
+    ERROR("Memory allocation failed for template\n");
     return 1;
   }
 
@@ -123,7 +124,7 @@ static int create_source_files(void) {
  */
 static int process_makefile(const char *toml_file, const char *output_file) {
   if (!toml_file || !output_file) {
-    fprintf(stderr, "Invalid file paths\n");
+    ERROR("Invalid file paths\n");
     return 1;
   }
 
@@ -133,14 +134,14 @@ static int process_makefile(const char *toml_file, const char *output_file) {
   // Generate Makefile content
   char *makefile_content = gen_makefile(tml);
   if (!makefile_content) {
-    fprintf(stderr, "Failed to generate Makefile content\n");
+    ERROR("Failed to generate Makefile content\n");
     free_toml_parsed(tml);
     return 1;
   }
 
   // Create and write Makefile
   if (create_and_write(output_file, makefile_content) != 0) {
-    fprintf(stderr, "Failed to write to output file: %s\n", output_file);
+    ERROR("Failed to write to output file: %s\n", output_file);
     free(makefile_content);
     free_toml_parsed(tml);
     return 1;
@@ -166,7 +167,7 @@ static int argparse(int argc, char **argv){
           args[j]->value = argv[++i];
           if(args[j]->value == NULL){
             r++;
-            fprintf(stderr, "%s: missing argument: %s\n", argv[0], argv[i - 1]);
+            ERROR("%s: missing argument: %s\n", argv[0], argv[i - 1]);
           }
         }
         break;
@@ -174,7 +175,7 @@ static int argparse(int argc, char **argv){
     }
     if(!m){
       r++;
-      fprintf(stderr, "%s: invalid flag: %s\n", argv[0], argv[i]);
+      ERROR("%s: invalid flag: %s\n", argv[0], argv[i]);
     }
   }
   return r;
@@ -222,7 +223,7 @@ int main(int argc, char **argv) {
   // Initialize project
   if (init.count > 0) {
     if (init_project() != 0) {
-      fprintf(stderr, "Failed to initialize project\n");
+      ERROR("Failed to initialize project\n");
       exit_code = EXIT_FAILURE;
       goto cleanup;
     }
@@ -235,7 +236,7 @@ int main(int argc, char **argv) {
   toml_file = safe_strdup(toml.count > 0 ? toml.value : DEFAULT_TOML_FILE);
 
   if (!output_file || !toml_file) {
-    fprintf(stderr, "Memory allocation failed\n");
+    ERROR("Memory allocation failed\n");
     exit_code = EXIT_FAILURE;
     goto cleanup;
   }

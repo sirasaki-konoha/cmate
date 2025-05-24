@@ -1,7 +1,7 @@
 
 # Build Environment Notes
 
-This project supports builds for both **Windows** and **Linux**.  
+This project supports builds for both **Windows** and **Linux**.
 Below are notes to ensure consistent, portable release builds.
 
 ---
@@ -35,9 +35,9 @@ Below are notes to ensure consistent, portable release builds.
 - **Use static linking for release builds**
   - Add `-static` to the compiler flags
 - Verify that the output is fully statically linked:
-  
+
 ```bash
-file ./your_binary
+file ./cate
 # Output should include: "statically linked"
 ````
 
@@ -53,6 +53,3 @@ file ./your_binary
 | ------- | --------------- | -------------------------------------------------------- |
 | Windows | w64devkit       | Use bundled terminal, check for minimal DLL dependencies |
 | Linux   | Docker + Alpine | Use `-static`, verify with `file`                        |
-
-
-
