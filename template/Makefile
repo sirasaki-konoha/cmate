@@ -1,13 +1,52 @@
+
 # Directory settings
 OBJDIR     := deps/object
 BINDIR     := bin
+# Default GOAL
+.DEFAULT_GOAL := all
 
 # List of all binaries (should be set by the generator)
 BINARIES   := $(addprefix $(BINDIR)/, $(PROJECT_NAMES))
 
+# Progress counter file
+PROGRESS_FILE := .build_progress
+
+# Progress display functions
+define show_progress
+@if [ -f $(PROGRESS_FILE) ]; then \
+  CURRENT_SIZE=$$(cat $(PROGRESS_FILE)); \
+else \
+  CURRENT_SIZE=0; \
+fi; \
+FILE_SIZE=$$(wc -c < "$(1)" 2>/dev/null || echo 100); \
+CURRENT_SIZE=$$((CURRENT_SIZE + FILE_SIZE)); \
+echo $$CURRENT_SIZE > $(PROGRESS_FILE); \
+if [ ! -f $(PROGRESS_FILE).total ]; then \
+  TOTAL_SIZE=$$(find src -name "*.c" -exec wc -c {} + 2>/dev/null | tail -1 | awk '{print $$1}' || echo 1000); \
+  echo $$TOTAL_SIZE > $(PROGRESS_FILE).total; \
+else \
+  TOTAL_SIZE=$$(cat $(PROGRESS_FILE).total); \
+fi; \
+if [ $$TOTAL_SIZE -gt 0 ]; then \
+  PERCENT=$$((CURRENT_SIZE * 100 / TOTAL_SIZE)); \
+  if [ $$PERCENT -gt 100 ]; then PERCENT=100; fi; \
+  printf "\r\033[K[%3d%%] Compiling: %-50s" $$PERCENT "$(1)"; \
+else \
+  printf "\r\033[KCompiling: %-50s" "$(1)"; \
+fi
+endef
+
+define show_linking
+@printf "\r\033[K🔗 Linking: %s\n" "$(1)"
+endef
+
+define show_complete
+@rm -f $(PROGRESS_FILE)
+@printf "\r\033[K✅ Build complete: %s\n" "$(1)"
+endef
+
 # Auto-detect source files for each binary
 define GEN_BINARY_RULES
-
 # ===== $(1) =====
 # Variables for $(1)
 SRCDIRS_$(1)    := $$(SRCDIRS_$(1))
@@ -16,7 +55,6 @@ EXTRA_SOURCES_$(1) := $$(EXTRA_SOURCES_$(1))
 LDLIBS_$(1)     := $$(LDLIBS_$(1))
 CFLAGS_$(1)     := $$(CFLAGS_$(1))
 CC_$(1)         := $$(CC_$(1))
-
 SOURCES_$(1)    := $$(foreach dir,$$(SRCDIRS_$(1)),$$(wildcard $$(dir)/*.c $$(dir)/*/*.c))
 SOURCES_$(1)    := $$(SOURCES_$(1)) $$(EXTRA_SOURCES_$(1))
 OBJECTS_$(1)    := $$(patsubst %.c,$$(OBJDIR)/$(1)/%.o,$$(SOURCES_$(1)))
@@ -26,15 +64,14 @@ CFLAGS_$(1)     += $$(INCLUDES_$(1))
 # Build rule for $(1)
 $$(BINDIR)/$(1): $$(OBJECTS_$(1))
 	@mkdir -p $$(BINDIR)
-	@echo "\nLinking executable: $$(BINDIR)/$(1)"
+	$$(call show_linking,$(1))
 	@$$(CC_$(1)) $$(OBJECTS_$(1)) -o $$@ $$(LDLIBS_$(1))
 
 # Object file rule for $(1)
 $$(OBJDIR)/$(1)/%.o: %.c
 	@mkdir -p $$(dir $$@)
-	@echo "Compiling: $$<"
+	$$(call show_progress,$$<)
 	@$$(CC_$(1)) $$(CFLAGS_$(1)) -c $$< -o $$@
-
 endef
 
 # Generate rules for each binary
@@ -44,11 +81,12 @@ $(foreach bin,$(PROJECT_NAMES),$(eval $(call GEN_BINARY_RULES,$(bin))))
 .PHONY: all clean rebuild debug release test verbose help info
 
 all: $(BINARIES)
-	@echo "\nBuild complete: $(BINARIES)"
+	$(call show_complete,$(BINARIES))
 
 clean:
-	@rm -rf $(OBJDIR) $(BINDIR) deps
-	@echo "Cleanup completed"
+	@printf "🧹 Cleaning up...\n"
+	@rm -rf $(OBJDIR) $(BINDIR) deps $(PROGRESS_FILE) $(PROGRESS_FILE).total
+	@printf "✅ Cleanup completed\n"
 
 rebuild: clean all
 
