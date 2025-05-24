@@ -59,7 +59,6 @@ project/
 ```
 
 ## Dependencies
-- argtable2
 - tomlc99
 - Makefile
 
