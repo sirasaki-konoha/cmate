@@ -1,15 +1,14 @@
-#include "term_color.h"
 #include <embed_mkfile.h>
 #include <errno.h>
 #include <file_io.h>
 #include <gen_makefile.h>
 #include <gen_toml.h>
+#include <stb_ds.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <term_color.h>
 #include <utils.h>
-
-#include <stb_ds.h>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -20,10 +19,33 @@
 #define MKDIR(dir) mkdir(dir, 0755)
 #endif
 
-#define GMK_VERSION "1.1"
-#define GMK_COPYRIGHT "Copyright (C) 2025 noa-vliz, rock-db."
-#define GMK_LICENSE "Licensed under the MIT License"
-#define GMK_SOURCE "Source: https://github.com/rock-db/cate"
+#ifdef _WIN32
+#include <windows.h>
+void enable_ansi_escape_codes() {
+  HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+  if (hOut == INVALID_HANDLE_VALUE) {
+    ERROR("Failed to get stdout\n");
+    return;
+  }
+
+  DWORD dwMode = 0;
+  if (!GetConsoleMode(hOut, &dwMode)) {
+    ERROR("Failed to get console mode\n");
+    return;
+  }
+
+  dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+  if (!SetConsoleMode(hOut, dwMode)) {
+    ERROR("Failed to set console Mode\n");
+    return;
+  }
+}
+#endif
+
+#define CATE_VERSION "1.1"
+#define CATE_COPYRIGHT "Copyright (C) 2025 noa-vliz, rock-db."
+#define CATE_LICENSE "Licensed under the MIT License"
+#define CATE_SOURCE "Source: https://github.com/rock-db/cate"
 
 #define DEFAULT_OUTPUT_FILE "Makefile"
 #define DEFAULT_TOML_FILE "project.toml"
@@ -32,12 +54,12 @@
 #define MAIN_C_FILE "main.c"
 
 typedef struct {
-	const char* shortarg;
-	const char* longarg;
-	const char* takes;
-	const char* help;
-	char* value;
-	int count;
+  const char *shortarg;
+  const char *longarg;
+  const char *takes;
+  const char *help;
+  char *value;
+  int count;
 } gmk_arg_t;
 gmk_arg_t **args = NULL;
 
@@ -45,11 +67,34 @@ gmk_arg_t **args = NULL;
  * Display version information
  */
 static void display_version(void) {
-  printf("gmk %s\n", GMK_VERSION);
-  printf("%s\n", GMK_COPYRIGHT);
-  printf("%s\n", GMK_LICENSE);
-  printf("%s\n", GMK_SOURCE);
+  printf("gmk %s\n", CATE_VERSION);
+  printf("%s\n", CATE_COPYRIGHT);
+  printf("%s\n", CATE_LICENSE);
+  printf("%s\n", CATE_SOURCE);
 }
+
+#ifdef _WIN32
+#include <windows.h>
+void enable_ansi_escape_codes() {
+  HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+  if (hOut == INVALID_HANDLE_VALUE) {
+    ERROR("Failed to get stdout\n");
+    return;
+  }
+
+  DWORD dwMode = 0;
+  if (!GetConsoleMode(hOut, &dwMode)) {
+    ERROR("Failed to get console mode\n");
+    return;
+  }
+
+  dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+  if (!SetConsoleMode(hOut, dwMode)) {
+    ERROR("Failed to set console Mode\n");
+    return;
+  }
+}
+#endif
 
 /**
  * Display help message
@@ -58,10 +103,11 @@ static void display_version(void) {
 static void display_help(void) {
   int i;
   printf("Usage: \n");
-  for(i = 0; i < arrlen(args); i++){
+  for (i = 0; i < arrlen(args); i++) {
     char buf[512];
     sprintf(buf, "-%s --%s", args[i]->shortarg, args[i]->longarg);
-    if(args[i]->takes != NULL) sprintf(buf + strlen(buf), " %s", args[i]->takes);
+    if (args[i]->takes != NULL)
+      sprintf(buf + strlen(buf), " %s", args[i]->takes);
     printf("  %-25s %s\n", buf, args[i]->help);
   }
 }
@@ -154,20 +200,30 @@ static int process_makefile(const char *toml_file, const char *output_file) {
   return 0;
 }
 
-static int argparse(int argc, char **argv){
+static int argparse(int argc, char **argv) {
   int i, j;
   int r = 0;
-  for(i = 1; i < argc; i++){
+  for (i = 1; i < argc; i++) {
     int m = 0;
-    for(j = 0; j < arrlen(args); j++){
-      int s = strlen(argv[i]) > 1 ? ((argv[i][0] == '-' && strcmp(argv[i] + 1, args[j]->shortarg) == 0) ? 1 : 0) : 0;
-      int l = strlen(argv[i]) > 2 ? ((argv[i][0] == '-' && argv[i][1] == '-' && strcmp(argv[i] + 2, args[j]->longarg) == 0) ? 1 : 0) : 0;
-      if(s || l){
+    for (j = 0; j < arrlen(args); j++) {
+      int s = strlen(argv[i]) > 1
+                  ? ((argv[i][0] == '-' &&
+                      strcmp(argv[i] + 1, args[j]->shortarg) == 0)
+                         ? 1
+                         : 0)
+                  : 0;
+      int l = strlen(argv[i]) > 2
+                  ? ((argv[i][0] == '-' && argv[i][1] == '-' &&
+                      strcmp(argv[i] + 2, args[j]->longarg) == 0)
+                         ? 1
+                         : 0)
+                  : 0;
+      if (s || l) {
         m = 1;
         args[j]->count++;
-        if(args[j]->takes != NULL){
+        if (args[j]->takes != NULL) {
           args[j]->value = argv[++i];
-          if(args[j]->value == NULL){
+          if (args[j]->value == NULL) {
             r++;
             ERROR("%s: missing argument: %s\n", argv[0], argv[i - 1]);
           }
@@ -175,7 +231,7 @@ static int argparse(int argc, char **argv){
         break;
       }
     }
-    if(!m){
+    if (!m) {
       r++;
       ERROR("%s: invalid flag: %s\n", argv[0], argv[i]);
     }
@@ -184,10 +240,21 @@ static int argparse(int argc, char **argv){
 }
 
 int main(int argc, char **argv) {
-  // Define command line arguments
-  gmk_arg_t help = {"h", "help", NULL, "Display this help message", NULL, 0};
-  gmk_arg_t output = {"o", "output", "<file>", "Change the output file destination (default: Makefile)", NULL, 0};
-  gmk_arg_t toml = {"t", "toml", "<file>", "Change the TOML file to parse (default: project.toml)", NULL, 0};
+#ifdef _WIN32
+  enable_ansi_escape_codes();
+#endif
+
+      // Define command line arguments
+      gmk_arg_t help = {"h",  "help", NULL, "Display this help message",
+                        NULL, 0};
+  gmk_arg_t output = {
+      "o",      "output",
+      "<file>", "Change the output file destination (default: Makefile)",
+      NULL,     0};
+  gmk_arg_t toml = {
+      "t",      "toml",
+      "<file>", "Change the TOML file to parse (default: project.toml)",
+      NULL,     0};
   gmk_arg_t version = {"v", "version", NULL, "Display version info", NULL, 0};
   gmk_arg_t init = {"i", "init", NULL, "Generate a project.toml file", NULL, 0};
 
