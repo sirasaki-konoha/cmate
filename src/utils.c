@@ -1,4 +1,5 @@
 #include "file_io.h"
+#include <term_color.h>
 #include <embed_mkfile.h>
 #include <gen_toml.h>
 #include <stdarg.h>
@@ -119,19 +120,15 @@ char *format_string(const char *restrict __format, ...) {
 }
 
 int init_project() {
-  char *copy = malloc(template_project_toml_len + 1);
-  memcpy(copy, template_project_toml, template_project_toml_len);
-  copy[template_project_toml_len] = '\0';
+  char *copy = malloc(template_cmate_len + 1);
+  memcpy(copy, template_cmate, template_cmate_len);
+  copy[template_cmate_len] = '\0';
 
-  printf("=> project.toml ");
-  if (create_and_write("project.toml", copy) != 0) {
+  INFO("Cmate.toml: ");
+  if (create_and_write("Cmate.toml", copy) != 0) {
     return 1;
   }
-#ifdef _WIN32
   printf("OK\n");
-#else
-  printf("\x1b[32mOK\n\x1b[0m");
-#endif
 
   free(copy);
   return 0;
@@ -140,7 +137,7 @@ int init_project() {
 /**
  * Safe string duplication function
  * @param s String to duplicate
- * @return Pointer to duplicated string, NULL on error
+ * @return Pointer to duplidcate string, NULL on error
  */
 char *safe_strdup(const char *s) {
   if (!s)

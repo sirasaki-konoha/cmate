@@ -4,3 +4,4 @@
 compile_commands.json
 /.vs
 /.build_progress.total
+/.build_progress

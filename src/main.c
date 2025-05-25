@@ -42,13 +42,13 @@ void enable_ansi_escape_codes() {
 }
 #endif
 
-#define CATE_VERSION "1.1"
-#define CATE_COPYRIGHT "Copyright (C) 2025 noa-vliz, rock-db."
-#define CATE_LICENSE "Licensed under the MIT License"
-#define CATE_SOURCE "Source: https://github.com/rock-db/cate"
+#define CMATE_VERSION "1.0"
+#define CMATE_COPYRIGHT "Copyright (C) 2025 rock-db."
+#define CMATE_LICENSE "Licensed under the MIT License"
+#define CMATE_SOURCE "Source: https://github.com/rock-db/cmate"
 
 #define DEFAULT_OUTPUT_FILE "Makefile"
-#define DEFAULT_TOML_FILE "project.toml"
+#define DEFAULT_TOML_FILE "Cmate.toml"
 #define SRC_DIRECTORY "src"
 #define INCLUDE_DIR "include"
 #define MAIN_C_FILE "main.c"
@@ -60,17 +60,17 @@ typedef struct {
   const char *help;
   char *value;
   int count;
-} cate_arg_t;
-cate_arg_t **args = NULL;
+} cmate_arg_t;
+cmate_arg_t **args = NULL;
 
 /**
  * Display version information
  */
 static void display_version(void) {
-  printf("cate %s\n", CATE_VERSION);
-  printf("%s\n", CATE_COPYRIGHT);
-  printf("%s\n", CATE_LICENSE);
-  printf("%s\n", CATE_SOURCE);
+  printf("cmate %s\n", CMATE_VERSION);
+  printf("%s\n", CMATE_COPYRIGHT);
+  printf("%s\n", CMATE_LICENSE);
+  printf("%s\n", CMATE_SOURCE);
 }
 
 #ifdef _WIN32
@@ -127,6 +127,7 @@ static int create_source_files(void) {
       return 1;
     }
   }
+  INFO("%s: OK\n", SRC_DIRECTORY);
 
   // Create include directory
   if (MKDIR(INCLUDE_DIR) != 0) {
@@ -136,30 +137,66 @@ static int create_source_files(void) {
       return 1;
     }
   }
+  INFO("%s: OK\n", INCLUDE_DIR);
 
-  // Allocate memory for main.c template
+  // Allocmate memory for main.c template
   char *main_template = malloc(template_main_template_len + 1);
   if (!main_template) {
     ERROR("Memory allocation failed for template\n");
     return 1;
   }
+  if (create_template_not_exits(SRC_DIRECTORY, MAIN_C_FILE,
+                                (const char *)template_main_template,
+                                template_main_template_len) != 0) {
+    return 1;
+  }
 
-  // Copy template and add null terminator
-  memcpy(main_template, template_main_template, template_main_template_len);
-  main_template[template_main_template_len] = '\0';
+  INFO("%s/%s: OK\n", SRC_DIRECTORY, MAIN_C_FILE);
+
+  if (create_template_not_exits(NULL, ".gitignore",
+                                (const char *)template_gitignore_template,
+                                template_Makefile_len) != 0) {
+    return 1;
+  }
+  INFO("%s: OK\n", ".gitignore");
+
+  return result;
+}
+
+int create_template_not_exits(const char *dir, const char *filename,
+                                     const char *template,
+                                     int const template_len) {
+  char *template_text = malloc(template_len + 1);
+
+  if (template_text == NULL) {
+    return 1;
+  }
+
+  memcpy(template_text, template, template_len);
+  template_text[template_len] = '\0';
 
   // Build file path
   char filepath[256];
 #ifdef _WIN32
-  snprintf(filepath, sizeof(filepath), "%s\\%s", SRC_DIRECTORY, MAIN_C_FILE);
+  if (dir != NULL) {
+    snprintf(filepath, sizeof(filepath), "%s\\%s", dir, filename);
+  } else {
+    snprintf(filepath, sizeof(filepath), "%s", filename);
+  }
 #else
-  snprintf(filepath, sizeof(filepath), "%s/%s", SRC_DIRECTORY, MAIN_C_FILE);
+  if (dir != NULL) {
+    snprintf(filepath, sizeof(filepath), "%s/%s", dir, filename);
+  } else {
+    snprintf(filepath, sizeof(filepath), "%s", filename);
+  }
 #endif
 
   // Create file and write content
-  create_not_exists(filepath, main_template);
-  free(main_template);
-  return result;
+  if (create_not_exists(filepath, template_text) != 0) {
+    return 1;
+  }
+  free(template_text);
+  return 0;
 }
 
 /**
@@ -244,19 +281,19 @@ int main(int argc, char **argv) {
   enable_ansi_escape_codes();
 #endif
 
-      // Define command line arguments
-      cate_arg_t help = {"h",  "help", NULL, "Display this help message",
-                        NULL, 0};
-  cate_arg_t output = {
+  // Define command line arguments
+  cmate_arg_t help = {"h", "help", NULL, "Display this help message", NULL, 0};
+  cmate_arg_t output = {
       "o",      "output",
       "<file>", "Change the output file destination (default: Makefile)",
       NULL,     0};
-  cate_arg_t toml = {
+  cmate_arg_t toml = {
       "t",      "toml",
       "<file>", "Change the TOML file to parse (default: project.toml)",
       NULL,     0};
-  cate_arg_t version = {"v", "version", NULL, "Display version info", NULL, 0};
-  cate_arg_t init = {"i", "init", NULL, "Generate a project.toml file", NULL, 0};
+  cmate_arg_t version = {"v", "version", NULL, "Display version info", NULL, 0};
+  cmate_arg_t init = {"i",  "init", NULL, "Generate a project.toml file",
+                     NULL, 0};
 
   int exit_code = EXIT_SUCCESS;
   char *output_file = NULL;
@@ -296,6 +333,12 @@ int main(int argc, char **argv) {
       exit_code = EXIT_FAILURE;
       goto cleanup;
     }
+
+    if (create_source_files() != 0) {
+      exit_code = EXIT_FAILURE;
+      goto cleanup;
+    }
+
     goto cleanup;
   }
 
@@ -312,12 +355,6 @@ int main(int argc, char **argv) {
 
   // Process Makefile
   if (process_makefile(toml_file, output_file) != 0) {
-    exit_code = EXIT_FAILURE;
-    goto cleanup;
-  }
-
-  // Create source files
-  if (create_source_files() != 0) {
     exit_code = EXIT_FAILURE;
     goto cleanup;
   }
