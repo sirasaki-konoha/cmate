@@ -15,11 +15,16 @@ EXTRA_SOURCES_cmate :=  external/tomlc99/toml.c
 # Directory settings
 OBJDIR     := deps/object
 BINDIR     := bin
+
 # Default GOAL
 .DEFAULT_GOAL := all
 
 # List of all binaries (should be set by the generator)
 BINARIES   := $(addprefix $(BINDIR)/, $(PROJECT_NAMES))
+
+# Ensure bin directory exists
+$(BINDIR):
+	@mkdir -p $(BINDIR)
 
 # Auto-detect source files for each binary
 define GEN_BINARY_RULES
@@ -47,10 +52,6 @@ $$(OBJDIR)/$(1)/%.o: %.c
 	@mkdir -p $$(dir $$@)
 	@echo "Compiling $$<"
 	@$$(CC_$(1)) $$(CFLAGS_$(1)) -c $$< -o $$@
-
-# Ensure directory exists (order-only prerequisite)
-$$(BINDIR):
-	@mkdir -p $$(BINDIR)
 endef
 
 # Generate rules for each binary
@@ -86,9 +87,9 @@ help:
 info:
 	@echo "Project Structure:"
 	@echo "  Source Dirs (per binary):"
-	@$(foreach bin,$(PROJECT_NAMES),echo "    $(bin): $$(SRCDIRS_$(bin))";)
+	@$(foreach bin,$(PROJECT_NAMES),echo "    $(bin): $(SRCDIRS_$(bin))";)
 	@echo "  Include Dirs (per binary):"
-	@$(foreach bin,$(PROJECT_NAMES),echo "    $(bin): $$(INCLUDE_DIRS_$(bin))";)
+	@$(foreach bin,$(PROJECT_NAMES),echo "    $(bin): $(INCLUDE_DIRS_$(bin))";)
 	@echo "  Binary outputs: $(BINARIES)"
 	@echo "  Project names: $(PROJECT_NAMES)"
 

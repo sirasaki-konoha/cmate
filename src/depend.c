@@ -2,13 +2,14 @@
 #include <gen_makefile.h>
 #include <gen_toml.h>
 #include <stdio.h>
+#include <term_color.h>
 #include <stdlib.h>
 #include <string.h>
 #include <toml.h>
 #include <utils.h>
 
 char *auto_detect_compiler() {
-  char *compilers[] = {"clang", "gcc", NULL};
+  char *compilers[] = {"clang", "gcc", "cc", "zig cc" ,NULL};
   int len = get_array_len(compilers);
   char *detect_compiler = NULL;
 
@@ -45,7 +46,7 @@ char *auto_detect_compiler() {
 }
 
 char *check_depends(toml_parsed_t *parsed) {
-  printf("=> Checking dependencies\n");
+  INFO("Checking dependencies\n");
 
   if (parsed->compiler == NULL) {
     printf("!!! Compiler is not specified in configuration\n");
@@ -73,10 +74,10 @@ char *check_depends(toml_parsed_t *parsed) {
   free_args(args);
 
   if (exit_code != 0) {
-    printf("!!! The C compiler '%s' is not set up!\n", parsed->compiler);
+    ERROR("The C compiler '%s' is not set up!\n", parsed->compiler);
     return NULL;
   }
 
-  printf("=> The C Compiler is %s\n", parsed->compiler);
+  INFO("The C Compiler is %s\n", parsed->compiler);
   return parsed->compiler;
 }

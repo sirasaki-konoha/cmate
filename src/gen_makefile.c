@@ -21,7 +21,8 @@ char *display_and_collect_libs(char **array, const char *message,
 
   int len = get_array_len(array);
   if (len > 0) {
-    printf("%s %s", GREEN("=>"), message);
+    INFO("%s", message);
+
 
     for (int i = 0; i < len; i++) {
       char *tmp = result;
