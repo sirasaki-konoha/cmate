@@ -1,5 +1,6 @@
 /deps
 /bin
+/Makefile
 /.cache
 /.vs
-	
+
