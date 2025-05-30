@@ -1,0 +1,56 @@
+name: Build C/C++ Project on Windows
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup MinGW-w64
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-make
+          make
+    
+    - name: Build project
+      shell: msys2 {0}
+      run: |
+        make clean
+        make
+    
+    - name: Verify build output
+      shell: msys2 {0}
+      run: |
+        if [ -f "bin/cmate.exe" ]; then
+          echo "Build successful: bin/cmate.exe found"
+          ls -la bin/cmate.exe
+        else
+          echo "Build failed: bin/cmate.exe not found"
+          exit 1
+        fi
+    
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: cmate-windows-build
+        path: bin/cmate.exe
+        if-no-files-found: error
+    
+    - name: Create release asset (on tag)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: actions/upload-artifact@v4
+      with:
+        name: cmate-release-${{ github.ref_name }}
+        path: bin/cmate.exe
