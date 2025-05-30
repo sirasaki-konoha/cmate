@@ -7,42 +7,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <term_color.h>
 #include <utils.h>
 
 #ifdef _WIN32
+#include <windows.h>
 #include <direct.h>
 #define MKDIR(dir) _mkdir(dir)
+#undef ERROR
 #else
 #include <sys/stat.h>
 #include <sys/types.h>
 #define MKDIR(dir) mkdir(dir, 0755)
 #endif
+#include <term_color.h>
 
-#ifdef _WIN32
-#include <windows.h>
-void enable_ansi_escape_codes() {
-  HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-  if (hOut == INVALID_HANDLE_VALUE) {
-    ERROR("Failed to get stdout\n");
-    return;
-  }
-
-  DWORD dwMode = 0;
-  if (!GetConsoleMode(hOut, &dwMode)) {
-    ERROR("Failed to get console mode\n");
-    return;
-  }
-
-  dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-  if (!SetConsoleMode(hOut, dwMode)) {
-    ERROR("Failed to set console Mode\n");
-    return;
-  }
-}
-#endif
-
-#define CMATE_VERSION "1.0"
+#define CMATE_VERSION "1.1-alpha"
 #define CMATE_COPYRIGHT "Copyright (C) 2025 rock-db."
 #define CMATE_LICENSE "Licensed under the MIT License"
 #define CMATE_SOURCE "Source: https://github.com/rock-db/cmate"
@@ -74,7 +53,6 @@ static void display_version(void) {
 }
 
 #ifdef _WIN32
-#include <windows.h>
 void enable_ansi_escape_codes() {
   HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
   if (hOut == INVALID_HANDLE_VALUE) {
