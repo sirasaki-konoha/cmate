@@ -194,7 +194,7 @@ static int process_makefile(const char *toml_file, const char *output_file) {
   toml_parsed_t *tml = read_and_parse(toml_file, &count);
 
   // Generate Makefile content
-  char *makefile_content = gen_makefile(tml, count);
+  char *makefile_content = gen_makefile(tml, count, CMATE_VERSION);
 
   if (!makefile_content) {
     ERROR("Failed to generate Makefile content\n");
