@@ -60,16 +60,16 @@ char *gen_makefile(toml_parsed_t *parsed, int count) {
     }
 
     if (i == 0) {
-      INFO("Project names: ");
+      INFO("Project name(s): ");
     }
     char *tmp = project_names;
     project_names = format_string("%s%s%s", tmp ? tmp : "", (tmp ? " " : ""),
                                   parsed[i].project_name);
 
-    if (i != count) {
-      printf("%s, ", parsed[i].project_name);
-    } else {
+    if (i == (count - 1)) {
       printf("%s", parsed[i].project_name);
+    } else {
+      printf("%s, ", parsed[i].project_name);
     }
 
     if (tmp)
