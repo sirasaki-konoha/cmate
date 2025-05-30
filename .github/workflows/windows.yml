@@ -6,13 +6,20 @@ on:
   pull_request:
     branches: [ main ]
 
+  workflow_dispatch: {}
+
+      
+
 jobs:
   build:
     runs-on: windows-latest
     
     steps:
-    - name: Checkout code
+    - name: Checkout code (with submodules)
       uses: actions/checkout@v4
+      with:
+        submodules: true
+
     
     - name: Setup MinGW-w64
       uses: msys2/setup-msys2@v2
