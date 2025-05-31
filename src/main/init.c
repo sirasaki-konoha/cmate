@@ -1,6 +1,6 @@
 #include "main/main.h"
 #include "main/init.h"
-
+#include "term_color.h"
 
 /**
  * Create source directory and main.c file
