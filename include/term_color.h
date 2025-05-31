@@ -8,7 +8,7 @@
 #define BOLD(x) "\x1b[1m" x "\x1b[0m"
 
 #define INFO(fmt, ...) printf("%s " fmt , GREEN(">>"), ##__VA_ARGS__)
-#define ERROR(fmt, ...) fprintf(stderr, "%s " fmt , RED("!!"), ##__VA_ARGS__)
+#define ERR(fmt, ...) fprintf(stderr, "%s " fmt , RED("!!"), ##__VA_ARGS__)
 #define WARN(fmt, ...)  fprintf(stderr, "%s " fmt , YELLOW("!!"), ##__VA_ARGS__)
 #define DEBUG(fmt, ...) fprintf(stdout, "%s " fmt , "\x1b[36m??\x1b[0m", ##__VA_ARGS__)
 

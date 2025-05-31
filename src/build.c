@@ -21,16 +21,16 @@ int build_project(const char* toml_file) {
         INFO("To run the project, use: ./bin/<project_name>\n");
         return 0;
     } else {
-        ERROR("Build failed. Please check the output for errors.\n");
+        ERR("Build failed. Please check the output for errors.\n");
         INFO("You can try to run 'make' manually to see more details.\n");
         INFO("Cleaning up...\n");
 
         char *args[] = {"clean", NULL};
         if (run_command("make", args))
-            ERROR("Failed to clean up after build failure.\n");
+            ERR("Failed to clean up after build failure.\n");
 
         INFO("If the issue persists, please check your Cmate.toml configuration.\n");
-        ERROR("%s: Build failed.\n", RED("FALURE"));
+        ERR("%s: Build failed.\n", RED("FALURE"));
         return 1;
     }
 

@@ -13,7 +13,7 @@ int create_source_files(void) {
   if (MKDIR(SRC_DIRECTORY) != 0) {
     // Not an error if directory already exists
     if (errno != EEXIST) {
-      ERROR("Failed to create source directory\n");
+      ERR("Failed to create source directory\n");
       return 1;
     }
   }
@@ -23,7 +23,7 @@ int create_source_files(void) {
   if (MKDIR(INCLUDE_DIR) != 0) {
     // Not an error if directory already exists
     if (errno != EEXIST) {
-      ERROR("Failed to create include directory\n");
+      ERR("Failed to create include directory\n");
       return 1;
     }
   }
@@ -32,7 +32,7 @@ int create_source_files(void) {
   // Allocmate memory for main.c template
   char *main_template = malloc(template_main_template_len + 1);
   if (!main_template) {
-    ERROR("Memory allocation failed for template\n");
+    ERR("Memory allocation failed for template\n");
     return 1;
   }
   if (create_template_not_exits(SRC_DIRECTORY, MAIN_C_FILE,

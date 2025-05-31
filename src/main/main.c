@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
   // Initialize project
   if (init.count > 0) {
     if (init_project() != 0) {
-      ERROR("Failed to initialize project\n");
+      ERR("Failed to initialize project\n");
       exit_code = EXIT_FAILURE;
       goto cleanup;
     }
@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
   }
 
   if (!output_file || !toml_file) {
-    ERROR("Memory allocation failed\n");
+    ERR("Memory allocation failed\n");
     exit_code = EXIT_FAILURE;
     goto cleanup;
   }

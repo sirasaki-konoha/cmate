@@ -75,7 +75,7 @@ char *check_depends(toml_parsed_t *parsed) {
   free_args(args);
 
   if (exit_code != 0) {
-    ERROR("The C compiler '%s' is not set up!\n", parsed->compiler);
+    ERR("The C compiler '%s' is not set up!\n", parsed->compiler);
     return NULL;
   }
 

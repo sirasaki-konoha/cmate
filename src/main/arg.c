@@ -34,7 +34,7 @@ int argparse(int argc, char **argv, cmate_arg_t **args) {
           args[j]->value = argv[++i];
           if (args[j]->value == NULL) {
             r++;
-            ERROR("%s: missing argument: %s\n", argv[0], argv[i - 1]);
+            ERR("%s: missing argument: %s\n", argv[0], argv[i - 1]);
           }
         }
         break;
@@ -42,7 +42,7 @@ int argparse(int argc, char **argv, cmate_arg_t **args) {
     }
     if (!m) {
       r++;
-      ERROR("%s: invalid flag: %s\n", argv[0], argv[i]);
+      ERR("%s: invalid flag: %s\n", argv[0], argv[i]);
     }
   }
   return r;

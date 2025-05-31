@@ -73,7 +73,7 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, 
 
   if (count <= 0 || parsed == NULL)
   {
-    ERROR("No project configuration found.\n");
+    ERR("No project configuration found.\n");
     return NULL;
   }
 
@@ -82,7 +82,7 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, 
   {
     if (!parsed[i].project_name)
     {
-      ERROR("Project name not specified in configuration for entry %d\n", i);
+      ERR("Project name not specified in configuration for entry %d\n", i);
       return NULL;
       break;
     }
@@ -131,7 +131,7 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, 
       char *compiler = auto_detect_compiler();
       if (compiler == NULL)
       {
-        ERROR("The C compiler is not installed!\n");
+        ERR("The C compiler is not installed!\n");
         info("%s: The C compiler is not installed!\n", p->project_name);
         free(all_vars);
         free(project_names_line);
@@ -203,7 +203,7 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, 
   char *copy = malloc(template_Makefile_len + 1);
   if (!copy)
   {
-    ERROR("Failed to allocate memory for Makefile template\n");
+    ERR("Failed to allocate memory for Makefile template\n");
     free(all_vars);
     free(project_names_line);
     return NULL;
