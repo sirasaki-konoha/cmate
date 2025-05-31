@@ -1,4 +1,5 @@
 #include "main/main.h"
+#include "term_color.h"
 
 /**
  * Process TOML file and generate Makefile
