@@ -1,6 +1,22 @@
 #ifndef _MAIN_H
 #define _MAIN_H
 
+/* Cross-platform support */
+#ifdef _WIN32
+#include <windows.h>
+#include <direct.h>
+
+#include "windows_support.h"
+#define MKDIR(dir) _mkdir(dir)
+
+#else
+#include "term_color.h"
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#define MKDIR(dir) mkdir(dir, 0755)
+#endif
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,24 +35,6 @@
 #include "main/arg.h"
 #include "main/process_makefile.h"
 
-
-/* Cross-platform support */
-#ifdef _WIN32
-#include <windows.h>
-#include <direct.h>
-
-#include "windows_support.h"
-#define MKDIR(dir) _mkdir(dir)
-#undef ERROR
-
-#else
-
-#include <sys/stat.h>
-#include <sys/types.h>
-#define MKDIR(dir) mkdir(dir, 0755)
-
-#endif
-#include "term_color.h"
 
 
 /* CMATE version settings etc. */

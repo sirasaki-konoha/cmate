@@ -1,5 +1,7 @@
 #ifdef _WIN32
 #include <windows.h>
+#undef ERROR
+#include "term_color.h"
 
 void enable_ansi_escape_codes() {
   HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
