@@ -1,6 +1,6 @@
 #ifndef _FILE_IO_H
 #define _FILE_IO_H
-#include <gen_toml.h>
+#include "toml_utils.h"
 
 toml_parsed_t *read_and_parse(const char *path, int *out_count);
 int create_and_write(const char *path, const char *write);

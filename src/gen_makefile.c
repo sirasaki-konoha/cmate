@@ -1,12 +1,14 @@
-#include <embed_mkfile.h>
-#include <gen_makefile.h>
-#include <gen_toml.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <term_color.h>
 #include <toml.h>
-#include <utils.h>
+
+#include "embed_mkfile.h"
+#include "gen_makefile.h"
+#include "toml_utils.h"
+#include "term_color.h"
+#include "utils.h"
+#include "depend.h"
 
 int get_array_len(char **array) {
   int len = 0;

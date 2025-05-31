@@ -1,0 +1,109 @@
+#include "main/main.h"
+
+cmate_arg_t **args = NULL;
+
+/**
+ * Display version information
+ */
+static void display_version(void) {
+  printf("cmate %s\n", CMATE_VERSION);
+  printf("%s\n", CMATE_COPYRIGHT);
+  printf("%s\n", CMATE_LICENSE);
+  printf("%s\n", CMATE_SOURCE);
+}
+
+int main(int argc, char **argv) {
+  enable_ansi_escape_codes();
+
+  // Define command line arguments
+  cmate_arg_t help = {"h", "help", NULL, "Display this help message", NULL, 0};
+  cmate_arg_t output = {
+      "o",      "output",
+      "<file>", "Change the output file destination (default: Makefile)",
+      NULL,     0};
+  cmate_arg_t toml = {
+      "t",      "toml",
+      "<file>", "Change the TOML file to parse (default: project.toml)",
+      NULL,     0};
+  cmate_arg_t version = {"v", "version", NULL, "Display version info", NULL, 0};
+  cmate_arg_t init = {"i",  "init", NULL, "Generate a project.toml file",
+                     NULL, 0};
+  cmate_arg_t build = {"b", "build", NULL, "Build the project", NULL, 0};
+
+  int exit_code = EXIT_SUCCESS;
+  char *output_file = NULL;
+  char *toml_file = NULL;
+  int nerrors = 0;
+
+  arrput(args, &help);
+  arrput(args, &output);
+  arrput(args, &toml);
+  arrput(args, &version);
+  arrput(args, &init);
+  arrput(args, &build);
+
+  nerrors = argparse(argc, argv, args);
+
+  // Display help message
+  if (help.count > 0) {
+    display_help(args);
+    goto cleanup;
+  }
+
+  // Display error messages
+  if (nerrors > 0) {
+    exit_code = EXIT_FAILURE;
+    goto cleanup;
+  }
+
+  // Display version information
+  if (version.count > 0) {
+    display_version();
+    goto cleanup;
+  }
+
+  // Initialize project
+  if (init.count > 0) {
+    if (init_project() != 0) {
+      ERROR("Failed to initialize project\n");
+      exit_code = EXIT_FAILURE;
+      goto cleanup;
+    }
+
+    if (create_source_files() != 0) {
+      exit_code = EXIT_FAILURE;
+      goto cleanup;
+    }
+
+    goto cleanup;
+  }
+
+  // Build the project
+  if (build.count > 0) {
+    
+  }
+
+  // Set file paths
+  output_file =
+      safe_strdup(output.count > 0 ? output.value : DEFAULT_OUTPUT_FILE);
+  toml_file = safe_strdup(toml.count > 0 ? toml.value : DEFAULT_TOML_FILE);
+
+  if (!output_file || !toml_file) {
+    ERROR("Memory allocation failed\n");
+    exit_code = EXIT_FAILURE;
+    goto cleanup;
+  }
+
+  // Process Makefile
+  if (process_makefile(toml_file, output_file) != 0) {
+    exit_code = EXIT_FAILURE;
+    goto cleanup;
+  }
+
+cleanup:
+  // Release resources
+  free(output_file);
+  free(toml_file);
+
+  return exit_code;
+}

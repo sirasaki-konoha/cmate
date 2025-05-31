@@ -3,5 +3,6 @@
 /bin
 compile_commands.json
 /.vs
+/.vscode
 /.build_progress.total
 /.build_progress

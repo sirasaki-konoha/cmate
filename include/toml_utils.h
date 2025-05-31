@@ -1,5 +1,5 @@
-#ifndef _GEN_TOML_h
-#define _GEN_TOML_h
+#ifndef _TOML_UTILS_H
+#define _TOML_UTILS_H
 #include <toml.h>
 
 typedef struct {
@@ -20,4 +20,4 @@ void free_arrays(char **arr, int count);
 
 void free_toml_parsed(toml_parsed_t *toml_parsed, int count);
 
-#endif /* _GEN_TOML_h */
+#endif /* _TOML_UTILS_H */

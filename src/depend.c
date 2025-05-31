@@ -1,12 +1,13 @@
-#include "utils.h"
-#include <gen_makefile.h>
-#include <gen_toml.h>
 #include <stdio.h>
-#include <term_color.h>
 #include <stdlib.h>
 #include <string.h>
 #include <toml.h>
-#include <utils.h>
+
+#include "utils.h"
+#include "gen_makefile.h"
+#include "toml_utils.h"
+#include "term_color.h"
+#include "utils.h"
 
 char *auto_detect_compiler() {
   char *compilers[] = {"clang", "gcc", "cc", "zig cc" ,NULL};
