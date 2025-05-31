@@ -1,4 +1,5 @@
 #include "main/main.h"
+#include "term_color.h"
 #include "main/arg.h"
 
 /**
