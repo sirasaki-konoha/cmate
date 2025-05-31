@@ -6,7 +6,7 @@
  * @param output_file Path to output file
  * @return 0 on success, non-zero on failure
  */
-int process_makefile(const char *toml_file, const char *output_file) {
+int process_makefile(const char *toml_file, const char *output_file, int output) {
   if (!toml_file || !output_file) {
     ERROR("Invalid file paths\n");
     return 1;
@@ -17,7 +17,7 @@ int process_makefile(const char *toml_file, const char *output_file) {
   toml_parsed_t *tml = read_and_parse(toml_file, &count);
 
   // Generate Makefile content
-  char *makefile_content = gen_makefile(tml, count, CMATE_VERSION);
+  char *makefile_content = gen_makefile(tml, count, CMATE_VERSION, output);
 
   if (!makefile_content) {
     ERROR("Failed to generate Makefile content\n");

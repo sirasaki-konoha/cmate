@@ -78,15 +78,16 @@ int main(int argc, char **argv) {
     goto cleanup;
   }
 
-  // Build the project
-  if (build.count > 0) {
-    
-  }
-
   // Set file paths
   output_file =
       safe_strdup(output.count > 0 ? output.value : DEFAULT_OUTPUT_FILE);
   toml_file = safe_strdup(toml.count > 0 ? toml.value : DEFAULT_TOML_FILE);
+
+  // Build the project
+  if (build.count > 0) {
+    build_project(toml_file);
+    goto cleanup;
+  }
 
   if (!output_file || !toml_file) {
     ERROR("Memory allocation failed\n");
@@ -95,7 +96,7 @@ int main(int argc, char **argv) {
   }
 
   // Process Makefile
-  if (process_makefile(toml_file, output_file) != 0) {
+  if (process_makefile(toml_file, output_file, 1) != 0) {
     exit_code = EXIT_FAILURE;
     goto cleanup;
   }

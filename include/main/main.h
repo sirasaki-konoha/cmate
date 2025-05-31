@@ -14,6 +14,7 @@
 #include "toml_utils.h"
 #include "utils.h"
 #include "windows_support.h"
+#include "build.h"
 #include "main/init.h"
 #include "main/arg.h"
 #include "main/process_makefile.h"
