@@ -8,7 +8,7 @@ PROJECT_NAMES := cmate
 CMATE_VERSION := 1.1-beta
 
 CC_cmate := gcc
-CFLAGS_cmate := -Wall -Wextra -std=c99 -O2 -g
+CFLAGS_cmate := -Wall -Wextra -std=c99 -O2 -flto -fno-ident -fno-asynchronous-unwind-tables -fno-unwind-tables -fno-exceptions -DNDEBUG -s
 LDLIBS_cmate :=
 SRCDIRS_cmate :=  cmate/src
 INCLUDE_DIRS_cmate :=  cmate/include

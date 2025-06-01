@@ -13,7 +13,7 @@ project = "cmate"
 compiler = "auto"
 
 # Compiler flags (optimization, warnings, include paths, etc)
-flags = "-Wall -Wextra -std=c99 -O2 -g"
+flags = "-Wall -Wextra -std=c99 -O2 -flto -fno-ident -fno-asynchronous-unwind-tables -fno-unwind-tables -fno-exceptions -DNDEBUG -s"
 
 # Source directories containing .c files
 # Default: ["src"] (if not specified)
