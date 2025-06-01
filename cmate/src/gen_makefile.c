@@ -162,6 +162,13 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, 
     if (!ldlibs)
       ldlibs = format_string("LDLIBS_%s :=", p->project_name);
 
+    char *ldflags = display_and_collect_libs(
+      p->ldflags, format_string("%s: Linker flags: ", p->project_name),
+      format_string("LDFLAGS_%s :=", p->project_name), " ", output);
+
+    if (!ldflags)
+      ldflags = format_string("LDFLAGS_%s :=", p->project_name);
+
     char *srcdirs = display_and_collect_libs(
         p->srcdirs, format_string("%s: Source directory: ", p->project_name),
         format_string("SRCDIRS_%s :=", p->project_name), " ", output);
@@ -181,7 +188,9 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, 
       compile_files = format_string("EXTRA_SOURCES_%s :=", p->project_name);
 
     char *tmp = all_vars;
-    all_vars = format_string("\nCMATE_VERSION := %s\n"
+    all_vars = format_string("\n"
+                             "CMATE_VERSION := %s\n"
+                             "%s\n"
                              "%s\n"
                              "%s\n"
                              "%s\n"
@@ -190,7 +199,7 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, 
                              "%s\n"
                              "%s\n",
                              cmate_version, tmp, cc, cflags,
-                             ldlibs, srcdirs, includes, compile_files);
+                             ldlibs, ldflags ,srcdirs, includes, compile_files);
     free(tmp);
     free(cc);
     free(cflags);

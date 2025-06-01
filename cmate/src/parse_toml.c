@@ -46,6 +46,8 @@ toml_parsed_t *parse_toml(const char *path, int *out_count) {
         parsed[i].srcdirs = get_arrays(toml_array_in(bin_tbl, "src"), &count);
         count = 0;
         parsed[i].libraries = get_arrays(toml_array_in(bin_tbl, "libs"), &count);
+        count = 0;
+        parsed[i].ldflags = get_arrays(toml_array_in(bin_tbl, "linkflags"), &count);
     }
 
     toml_free(conf);

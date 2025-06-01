@@ -10,6 +10,7 @@ typedef struct {
   char **srcdirs;
   char **includes;
   char **libraries;
+  char **ldflags;
 } toml_parsed_t;
 
 char **get_arrays(toml_array_t *arr, int *out_cound);

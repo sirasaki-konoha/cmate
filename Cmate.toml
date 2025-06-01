@@ -12,8 +12,11 @@ project = "cmate"
 # or leave unspecified to use the default compiler.
 compiler = "auto"
 
-# Compiler flags (optimization, warnings, include paths, etc)
-flags = "-Wall -Wextra -std=c99 -O2 -flto -fno-ident -fno-asynchronous-unwind-tables -fno-unwind-tables -fno-exceptions -DNDEBUG -s"
+# Compiler flags (warnings, include paths, etc)
+flags = "-Wall -Wextra -std=c99"
+
+
+linkflags = ["-O2", "-flto", "-fno-ident", "-fno-asynchronous-unwind-tables", "-fno-unwind-tables", "-fno-exceptions", "-DNDEBUG", "-s", "-static"]
 
 # Source directories containing .c files
 # Default: ["src"] (if not specified)
@@ -24,7 +27,6 @@ src = ["cmate/src"]
 # Default: ["include"] (if not specified)
 # Multiple directories can be specified
 include = ["cmate/include"]
-#include = ["cmate/include", "cmate/external/tomlc99"]
 
 # [Advanced] Specific files to compile (overrides automatic src discovery)
 # Use this to compile particular files when auto-detection isn't desired
@@ -34,6 +36,7 @@ compile = []
 # External libraries to link against (-l flag will be added automatically)
 # Example: ["m" => links with -lm, "dl" => links with -ldl]
 libs = []
+
 
 # Note: All paths are relative to this configuration file's location
 # ======================================================
