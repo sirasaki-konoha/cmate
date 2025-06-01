@@ -1,3 +1,0 @@
-[submodule "cmate/external/tomlc99"]
-	path = cmate/external/tomlc99
-	url = https://github.com/cktan/tomlc99.git

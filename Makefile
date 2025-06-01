@@ -11,8 +11,8 @@ CC_cmate := gcc
 CFLAGS_cmate := -Wall -Wextra -std=c99 -O2 -g
 LDLIBS_cmate :=
 SRCDIRS_cmate :=  cmate/src
-INCLUDE_DIRS_cmate :=  cmate/include  cmate/external/tomlc99/
-EXTRA_SOURCES_cmate :=  cmate/external/tomlc99/toml.c
+INCLUDE_DIRS_cmate :=  cmate/include
+EXTRA_SOURCES_cmate :=
 
 
 # Directory settings
