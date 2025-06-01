@@ -25,7 +25,7 @@
 
 */
 #define _POSIX_C_SOURCE 200809L
-#include "toml.h"
+#include "tomlc99/toml.h"
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>

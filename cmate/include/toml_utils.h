@@ -1,6 +1,6 @@
 #ifndef _TOML_UTILS_H
 #define _TOML_UTILS_H
-#include <toml.h>
+#include "tomlc99/toml.h"
 
 typedef struct {
   char *project_name;
@@ -19,5 +19,7 @@ char *get_str(toml_table_t *conf, const char *name);
 void free_arrays(char **arr, int count);
 
 void free_toml_parsed(toml_parsed_t *toml_parsed, int count);
+
+toml_parsed_t *parse_toml(const char *path, int *out_count);
 
 #endif /* _TOML_UTILS_H */

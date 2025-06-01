@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <toml.h>
+#include "tomlc99/toml.h"
 
 #include "file_io.h"
 #include "term_color.h"

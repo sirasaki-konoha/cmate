@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <toml.h>
+#include "tomlc99/toml.h"
 
 #include "utils.h"
 #include "run_command.h"

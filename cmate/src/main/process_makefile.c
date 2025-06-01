@@ -15,7 +15,7 @@ int process_makefile(const char *toml_file, const char *output_file, int output)
 
   int count = 0;
   // Parse TOML file
-  toml_parsed_t *tml = read_and_parse(toml_file, &count);
+  toml_parsed_t *tml = parse_toml(toml_file, &count);
 
   // Generate Makefile content
   char *makefile_content = gen_makefile(tml, count, CMATE_VERSION, output);

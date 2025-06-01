@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <toml.h>
+#include "tomlc99/toml.h"
 
 #include "file_io.h"
 #include "toml_utils.h"
 
-toml_parsed_t *read_and_parse(const char *path, int *out_count) {
+toml_parsed_t *parse_toml(const char *path, int *out_count) {
     FILE *file = fopen(path, "r");
     if (file == NULL) {
         fprintf(stderr, "Unable to open %s!\n", path);
