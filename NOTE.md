@@ -37,7 +37,7 @@ Below are notes to ensure consistent, portable release builds.
 - Verify that the output is fully statically linked:
 
 ```bash
-file ./cate
+file ./cmate
 # Output should include: "statically linked"
 ````
 
