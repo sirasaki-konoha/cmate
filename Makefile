@@ -3,16 +3,25 @@
 # To build all binaries, run: make
 # Report issues or contribute at: https://github.com/rock-db/cmate
 
-PROJECT_NAMES := cmate
+PROJECT_NAMES := cmate cmate-installer
+
+CMATE_VERSION := 1.1-beta
 
 CMATE_VERSION := 1.1-beta
 
 CC_cmate := gcc
 CFLAGS_cmate := -Wall -Wextra -std=c99 -O2 -g
 LDLIBS_cmate :=
-SRCDIRS_cmate := src
-INCLUDE_DIRS_cmate :=  include  external/tomlc99/
-EXTRA_SOURCES_cmate :=  external/tomlc99/toml.c
+SRCDIRS_cmate :=  cmate/src
+INCLUDE_DIRS_cmate :=  cmate/include  cmate/external/tomlc99/
+EXTRA_SOURCES_cmate :=  cmate/external/tomlc99/toml.c
+
+CC_cmate-installer := gcc
+CFLAGS_cmate-installer := -Wall -Wextra -std=c99 -O2 -g
+LDLIBS_cmate-installer :=
+SRCDIRS_cmate-installer :=  installer/src
+INCLUDE_DIRS_cmate-installer :=  installer/include
+EXTRA_SOURCES_cmate-installer :=
 
 
 # Directory settings
