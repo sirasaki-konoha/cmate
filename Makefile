@@ -26,6 +26,21 @@ BINARIES := $(addprefix $(BINDIR)/, $(PROJECT_NAMES))
 # Ensure bin directory exists
 $(BINDIR):
 	@mkdir -p $(BINDIR)
+
+define get_sources
+    $(foreach dir,$(SRCDIRS_$(1)),\
+        $(wildcard $(dir)/*.c) \
+        $(wildcard $(dir)/*/*.c) \
+        $(wildcard $(dir)/*/*/*.c) \
+        $(wildcard $(dir)/*/*/*/*.c) \
+        $(wildcard $(dir)/*/*/*/*/*.c) \
+        $(wildcard $(dir)/*/*/*/*/*/*.c) \
+        $(wildcard $(dir)/*/*/*/*/*/*/*.c) \
+        $(wildcard $(dir)/*/*/*/*/*/*/*/*.c) \
+        $(wildcard $(dir)/*/*/*/*/*/*/*/*/*.c) \
+        $(wildcard $(dir)/*/*/*/*/*/*/*/*/*/*.c))
+endef
+
 # Auto-detect source files for each binary
 define GEN_BINARY_RULES
 # ===== $(1) =====
@@ -37,7 +52,7 @@ LDLIBS_$(1) := $$(LDLIBS_$(1))
 LDFLAGS_$(1) := $$(LDFLAGS_$(1))
 CFLAGS_$(1) := $$(CFLAGS_$(1))
 CC_$(1) := $$(CC_$(1))
-SOURCES_$(1) := $$(foreach dir,$$(SRCDIRS_$(1)),$$(wildcard $$(dir)/*.c $$(dir)/*/*.c))
+SOURCES_$(1) := $$(call get_sources,$(1))
 SOURCES_$(1) := $$(SOURCES_$(1)) $$(EXTRA_SOURCES_$(1))
 OBJECTS_$(1) := $$(patsubst %.c,$$(OBJDIR)/$(1)/%.o,$$(SOURCES_$(1)))
 INCLUDES_$(1) := $$(addprefix -I,$$(INCLUDE_DIRS_$(1)))
@@ -52,8 +67,10 @@ $$(OBJDIR)/$(1)/%.o: %.c
 	@echo "Compiling $$<"
 	@$$(CC_$(1)) $$(CFLAGS_$(1)) -c $$< -o $$@
 endef
+
 # Generate rules for each binary
 $(foreach bin,$(PROJECT_NAMES),$(eval $(call GEN_BINARY_RULES,$(bin))))
+
 # Default targets
 .PHONY: all clean rebuild help info release
 # Main build target
@@ -96,4 +113,3 @@ info:
 	@$(foreach bin,$(PROJECT_NAMES),echo "    $(bin): $(INCLUDE_DIRS_$(bin))";)
 	@echo "  Binary outputs: $(BINARIES)"
 	@echo "  Project names: $(PROJECT_NAMES)"
-

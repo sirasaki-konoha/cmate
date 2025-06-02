@@ -68,3 +68,32 @@ char *safe_strdup(const char *s) {
   strcpy(dup, s);
   return dup;
 }
+
+/**
+ * Joins an array of strings into a single string, inserting the specified separator between each string.
+ *
+ * @param strings    A NULL-terminated array of strings to be joined.
+ * @param separator  The string to insert between each pair of strings.
+ * @return           A newly allocated string containing the joined result, or NULL on allocation failure.
+ *                   The caller is responsible for freeing the returned string.
+ */
+char *join_strings(char **strings, const char *separator) {
+    unsigned long total_length = 0;
+    int i;
+    for (i = 0; strings[i] != NULL; i++) {
+        total_length += strlen(strings[i]);
+    }
+    total_length += strlen(separator) * (i - 1);
+
+    char *result = malloc(total_length + 1);
+    result[0] = '\0';
+
+    for (int i = 0; strings[i] != NULL; i++) {
+        strcat(result, strings[i]);
+        if (strings[i + 1] != NULL) {
+            strcat(result, separator);
+        }
+    }
+
+    return result;
+}

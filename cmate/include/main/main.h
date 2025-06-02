@@ -9,6 +9,9 @@
 #include "windows_support.h"
 #define MKDIR(dir) _mkdir(dir)
 
+#include "visual_studio/vcxproj/generate.h"
+#include "visual_studio/sln/generate.h"
+
 #else
 #include "term_color.h"
 #include <sys/stat.h>

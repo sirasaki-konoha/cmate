@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
   cmate_arg_t init = {"i",  "init", NULL, "Generate a project.toml file",
                      NULL, 0};
   cmate_arg_t build = {"b", "build", NULL, "Build the project", NULL, 0};
+  cmate_arg_t vs2022 = {"vs", "vs2022", NULL, "Create Visual Studio 2022 sln(vcxproj) files", NULL, 0};
 
   int exit_code = EXIT_SUCCESS;
   char *output_file = NULL;
@@ -42,6 +43,7 @@ int main(int argc, char **argv) {
   arrput(args, &version);
   arrput(args, &init);
   arrput(args, &build);
+  arrput(args, &vs2022);
 
   nerrors = argparse(argc, argv, args);
 
@@ -96,6 +98,15 @@ int main(int argc, char **argv) {
     goto cleanup;
   }
 
+
+  if (vs2022.count > 0) {
+    // Process Visual Studio project files
+    if (process_vs(toml_file, output_file, 1) != 0) {
+      exit_code = EXIT_FAILURE;
+      goto cleanup;
+    }
+    goto cleanup;
+  }
   // Process Makefile
   if (process_makefile(toml_file, output_file, 1) != 0) {
     exit_code = EXIT_FAILURE;
