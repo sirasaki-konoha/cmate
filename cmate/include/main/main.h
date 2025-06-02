@@ -40,8 +40,8 @@
 /* CMATE version settings etc. */
 
 #define CMATE_VERSION "1.1"
-#define CMATE_COPYRIGHT "Copyright (C) 2025 noa-vliz\nCopyright (C) 2025 rock-db"
-#define CMATE_LICENSE "Licensed under the MIT License"
+#define CMATE_COPYRIGHT "Copyright (C) 2025 noa-vliz\nModified by rock-db (c) 2025"
+#define CMATE_LICENSE "Licensed under the MIT License."
 #define CMATE_SOURCE "Source: https://github.com/rock-db/cmate"
 
 #define DEFAULT_OUTPUT_FILE "Makefile"
