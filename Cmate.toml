@@ -22,7 +22,6 @@ flags = "-Wall -Wextra -std=c99"
 linkflags = [
     "-O2",                                    # Optimization level 2
     "-flto",                                  # Link-time optimization
-    "-fno-ident",                            # Remove compiler identification
     "-fno-asynchronous-unwind-tables",       # Disable async unwind tables
     "-fno-unwind-tables",                    # Disable unwind tables
     "-fno-exceptions",                       # Disable exception handling

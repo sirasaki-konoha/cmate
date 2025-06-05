@@ -27,3 +27,4 @@ void enable_ansi_escape_codes() {
 void enable_ansi_escape_codes() {}
 
 #endif // _WIN32
+
