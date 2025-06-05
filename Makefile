@@ -7,10 +7,10 @@ PROJECT_NAMES := cmate
 
 CMATE_VERSION := 1.1
 
-CC_cmate := gcc
+CC_cmate := clang
 CFLAGS_cmate := -Wall -Wextra -std=c99
 LDLIBS_cmate :=
-LDFLAGS_cmate :=  -O2  -flto  -fno-ident  -fno-asynchronous-unwind-tables  -fno-unwind-tables  -fno-exceptions  -DNDEBUG  -s  -static
+LDFLAGS_cmate :=  -O2  -flto  -fno-asynchronous-unwind-tables  -fno-unwind-tables  -fno-exceptions  -DNDEBUG  -s  -static
 SRCDIRS_cmate :=  cmate/src
 INCLUDE_DIRS_cmate :=  cmate/include
 EXTRA_SOURCES_cmate :=
@@ -113,3 +113,4 @@ info:
 	@$(foreach bin,$(PROJECT_NAMES),echo "    $(bin): $(INCLUDE_DIRS_$(bin))";)
 	@echo "  Binary outputs: $(BINARIES)"
 	@echo "  Project names: $(PROJECT_NAMES)"
+

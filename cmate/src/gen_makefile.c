@@ -1,23 +1,21 @@
+#include "tomlc99/toml.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "tomlc99/toml.h"
 
+#include "depend.h"
 #include "embed_mkfile.h"
 #include "gen_makefile.h"
-#include "toml_utils.h"
 #include "term_color.h"
+#include "toml_utils.h"
 #include "utils.h"
-#include "depend.h"
 
-#define info(...)      \
-  if (output)          \
-  {                    \
-    INFO(__VA_ARGS__); \
+#define info(...)                                                              \
+  if (output) {                                                                \
+    INFO(__VA_ARGS__);                                                         \
   }
 
-int get_array_len(char **array)
-{
+int get_array_len(char **array) {
   int len = 0;
   while (array != NULL && array[len])
     len++;
@@ -25,29 +23,23 @@ int get_array_len(char **array)
 }
 
 char *display_and_collect_libs(char **array, const char *message,
-                               const char *base, const char *prefix, int output)
-{
+                               const char *base, const char *prefix,
+                               int output) {
   char *result = format_string("%s", base);
 
   int len = get_array_len(array);
-  if (len > 0)
-  {
+  if (len > 0) {
     if (output)
       INFO("%s", message);
 
-    for (int i = 0; i < len; i++)
-    {
+    for (int i = 0; i < len; i++) {
       char *tmp = result;
       result = format_string("%s %s%s", result, prefix, array[i]);
 
-      if (output)
-      {
-        if (i != len - 1)
-        {
+      if (output) {
+        if (i != len - 1) {
           printf("%s, ", array[i]);
-        }
-        else
-        {
+        } else {
           printf("%s", array[i]);
         }
       }
@@ -56,9 +48,7 @@ char *display_and_collect_libs(char **array, const char *message,
     }
     if (output)
       printf("\n");
-  }
-  else
-  {
+  } else {
     if (output)
       INFO("%s (none)\n", message);
     free(result);
@@ -68,41 +58,33 @@ char *display_and_collect_libs(char **array, const char *message,
   return result;
 }
 
-char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, int output)
-{
+char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version,
+                   int output) {
 
-  if (count <= 0 || parsed == NULL)
-  {
+  if (count <= 0 || parsed == NULL) {
     ERR("No project configuration found.\n");
     return NULL;
   }
 
   char *project_names = NULL;
-  for (int i = 0; i < count; ++i)
-  {
-    if (!parsed[i].project_name)
-    {
+  for (int i = 0; i < count; ++i) {
+    if (!parsed[i].project_name) {
       ERR("Project name not specified in configuration for entry %d\n", i);
       return NULL;
       break;
     }
 
-    if (i == 0)
-    {
+    if (i == 0) {
       info("Project name(s): ");
     }
     char *tmp = project_names;
     project_names = format_string("%s%s%s", tmp ? tmp : "", (tmp ? " " : ""),
                                   parsed[i].project_name);
 
-    if (output)
-    {
-      if (i == (count - 1))
-      {
+    if (output) {
+      if (i == (count - 1)) {
         printf("%s", parsed[i].project_name);
-      }
-      else
-      {
+      } else {
         printf("%s, ", parsed[i].project_name);
       }
     }
@@ -119,18 +101,15 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, 
   free(project_names);
 
   char *all_vars = safe_strdup("");
-  for (int i = 0; i < count; ++i)
-  {
+  for (int i = 0; i < count; ++i) {
     toml_parsed_t *p = &parsed[i];
     if (output)
       printf("%s %s %s\n", YELLOW("===="), p->project_name, YELLOW("===="));
 
     char *cc = NULL;
-    if (p->compiler == NULL || strcmp(p->compiler, "auto") == 0)
-    {
+    if (p->compiler == NULL || strcmp(p->compiler, "auto") == 0) {
       char *compiler = auto_detect_compiler();
-      if (compiler == NULL)
-      {
+      if (compiler == NULL) {
         ERR("The C compiler is not installed!\n");
         info("%s: The C compiler is not installed!\n", p->project_name);
         free(all_vars);
@@ -139,12 +118,9 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, 
       }
       cc = format_string("CC_%s := %s", p->project_name, compiler);
       info("%s: The C compiler is %s(auto)\n", p->project_name, compiler);
-    }
-    else
-    {
+    } else {
       char *result = check_depends(p);
-      if (result == NULL)
-      {
+      if (result == NULL) {
         free(all_vars);
         free(project_names_line);
         return NULL;
@@ -163,8 +139,8 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, 
       ldlibs = format_string("LDLIBS_%s :=", p->project_name);
 
     char *ldflags = display_and_collect_libs(
-      p->ldflags, format_string("%s: Linker flags: ", p->project_name),
-      format_string("LDFLAGS_%s :=", p->project_name), " ", output);
+        p->ldflags, format_string("%s: Linker flags: ", p->project_name),
+        format_string("LDFLAGS_%s :=", p->project_name), " ", output);
 
     if (!ldflags)
       ldflags = format_string("LDFLAGS_%s :=", p->project_name);
@@ -198,8 +174,8 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, 
                              "%s\n"
                              "%s\n"
                              "%s\n",
-                             cmate_version, tmp, cc, cflags,
-                             ldlibs, ldflags ,srcdirs, includes, compile_files);
+                             cmate_version, tmp, cc, cflags, ldlibs, ldflags,
+                             srcdirs, includes, compile_files);
     free(tmp);
     free(cc);
     free(cflags);
@@ -210,8 +186,7 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, 
   }
 
   char *copy = malloc(template_Makefile_len + 1);
-  if (!copy)
-  {
+  if (!copy) {
     ERR("Failed to allocate memory for Makefile template\n");
     free(all_vars);
     free(project_names_line);
@@ -220,13 +195,12 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, 
   memcpy(copy, template_Makefile, template_Makefile_len);
   copy[template_Makefile_len] = '\0';
 
-  char *first = format_string(
-      "# @generated by cmate %s.\n"
-      "# Do not edit this file manually.\n"
-      "# To build all binaries, run: make\n"
-      "# Report issues or contribute at: "
-      "https://github.com/rock-db/cmate\n",
-      cmate_version);
+  char *first = format_string("# @generated by cmate %s.\n"
+                              "# Do not edit this file manually.\n"
+                              "# To build all binaries, run: make\n"
+                              "# Report issues or contribute at: "
+                              "https://github.com/rock-db/cmate\n",
+                              cmate_version);
 
   char *result = format_string("%s\n%s\n%s\n%s\n", first, project_names_line,
                                all_vars, copy);
