@@ -40,11 +40,12 @@
 
 /* CMATE version settings etc. */
 
-#ifdef DEBUG
+#ifndef NDEBUG
 #define CMATE_VERSION "1.2-debug"
 #else
-#define CMATE_VERSION "1.1"
+#define CMATE_VERSION "1.2"
 #endif
+
 #define CMATE_COPYRIGHT                                                        \
   "Copyright (C) 2025 noa-vliz\nModified by rock-db (c) 2025"
 #define CMATE_LICENSE "Licensed under the MIT License."
