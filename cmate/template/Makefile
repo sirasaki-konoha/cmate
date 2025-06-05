@@ -60,8 +60,8 @@ $(foreach bin,$(PROJECT_NAMES),$(eval $(call GEN_BINARY_RULES,$(bin))))
 all: $(BINARIES)
 	@echo "Build completed: $(BINARIES)"
 # Release build target
-release: CFLAGS_ALL += -O3 -DNDEBUG -s
-release: LDFLAGS_ALL += -s
+release: CFLAGS_ALL += 
+release: LDFLAGS_ALL += -s -DNDEBUG -O3
 release: $(BINARIES)
 	@echo "Release build completed: $(BINARIES)"
 clean:
