@@ -1,5 +1,6 @@
 #include "main/main.h"
 #include "term_color.h"
+#include <stdio.h>
 
 cmate_arg_t **args = NULL;
 
@@ -8,6 +9,7 @@ cmate_arg_t **args = NULL;
  */
 static void display_version(void) {
   printf("cmate %s\n", CMATE_VERSION);
+  printf("Compiled on: %s, %s\n", __DATE__, __TIME__);
   printf("%s\n", CMATE_COPYRIGHT);
   printf("%s\n", CMATE_LICENSE);
   printf("%s\n", CMATE_SOURCE);
