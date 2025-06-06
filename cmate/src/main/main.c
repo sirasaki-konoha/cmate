@@ -8,8 +8,13 @@ cmate_arg_t **args = NULL;
  * Display version information
  */
 static void display_version(void) {
+#ifdef NDEBUG
   printf("cmate %s\n", CMATE_VERSION);
+#else
+  printf("cmate %s (debug build)\n", CMATE_VERSION);
   printf("Compiled on: %s, %s\n", __DATE__, __TIME__);
+#endif
+
   printf("%s\n", CMATE_COPYRIGHT);
   printf("%s\n", CMATE_LICENSE);
   printf("%s\n", CMATE_SOURCE);
