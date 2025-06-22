@@ -80,6 +80,5 @@ char *check_depends(toml_parsed_t *parsed) {
     return NULL;
   }
 
-  INFO("The C Compiler is %s\n", parsed->compiler);
   return parsed->compiler;
 }

@@ -103,11 +103,38 @@ int main(int argc, char **argv) {
     goto cleanup;
   }
 
+
   // Process Makefile
-  if (process_makefile(toml_file, output_file, 1) != 0) {
-    exit_code = EXIT_FAILURE;
+  char *toml_dir = get_toml_dir(toml_file);
+  char *toml_full = get_toml_file(toml_file);
+  char old_dir[1024];
+  if (getcwd(old_dir, sizeof(old_dir)) == NULL) {
+	  perror("Failed to get old dir");
+	  goto cleanup;
+  }
+
+  if (chdir(toml_dir) != 0) {
+    perror("Failed to find toml file");
     goto cleanup;
   }
+
+  INFO("Cmate.toml found in %s\n", toml_dir);
+  if (process_makefile(toml_full, output_file, 1) != 0) {
+    exit_code = EXIT_FAILURE;
+    free(toml_dir);
+    free(toml_full);
+    if (chdir(old_dir) != 0) {
+	    perror("Failed to find toml file");
+	    goto cleanup;
+    }
+    goto cleanup;
+  }
+  if (chdir(old_dir) != 0) {
+	    perror("Failed to find toml file");
+	    goto cleanup;
+  }
+  free(toml_dir);
+  free(toml_full);
 
 cleanup:
   // Release resources

@@ -95,5 +95,5 @@ make
 
 ## License
 
-[MIT License](./LICENSE)
+[MIT License](./docs/LICENSE)
 
