@@ -35,7 +35,7 @@ int create_source_files(void) {
     ERR("Memory allocation failed for template\n");
     return 1;
   }
-  if (create_template_not_exits(SRC_DIRECTORY, MAIN_C_FILE,
+  if (create_template_not_exist(SRC_DIRECTORY, MAIN_C_FILE,
                                 (const char *)template_main_template,
                                 template_main_template_len) != 0) {
     return 1;
@@ -43,7 +43,7 @@ int create_source_files(void) {
 
   INFO("%s/%s: OK\n", SRC_DIRECTORY, MAIN_C_FILE);
 
-  if (create_template_not_exits(NULL, ".gitignore",
+  if (create_template_not_exist(NULL, ".gitignore",
                                 (const char *)template_gitignore_template,
                                 template_Makefile_len) != 0) {
     return 1;
@@ -61,7 +61,7 @@ int create_source_files(void) {
  * @param template_len Length of the template content
  * @return 0 on success, non-zero on failure
  */
-int create_template_not_exits(const char *dir, const char *filename,
+int create_template_not_exist(const char *dir, const char *filename,
                                      const char *template,
                                      int const template_len) {
   char *template_text = malloc(template_len + 1);
