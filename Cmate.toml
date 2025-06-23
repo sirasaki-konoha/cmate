@@ -10,7 +10,7 @@ project = "cmate"
 # [Required] C compiler to use (gcc/clang/etc)
 # Use "auto" to automatically detect the host's default C compiler,
 # or leave unspecified to use the default compiler.
-compiler = "gcc"
+compiler = "auto"
 
 # Compiler flags for compilation phase
 # Include warnings, language standards, preprocessor definitions, etc.
