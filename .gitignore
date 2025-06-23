@@ -6,4 +6,7 @@ compile_commands.json
 /.vscode
 /.build_progress.total
 /.build_progress
+/Makefile
 .*~$
+*.swp
+
