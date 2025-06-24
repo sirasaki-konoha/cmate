@@ -54,7 +54,7 @@ int build_project(const char* toml_file) {
 
     INFO("Using configuration from: %s\n", toml_full_path);
     
-    if (process_makefile(toml_full_path, "Makefile", 0) != 0) {
+    if (process_makefile(toml_full_path, "Makefile", 0) == 1) {
 	    free(toml_full_path);
 	    free(toml_dir);
 	    return 1;
