@@ -37,6 +37,7 @@ int process_makefile(const char *toml_file, const char *output_file,
   }
 
   free(makefile_content);
+  free_toml_parsed(tml, count);
 
   return 0;
 }

@@ -29,7 +29,7 @@ char *collect_libs(char **array, const char *base, const char *prefix) {
         char *tmp = result;
         result = format_string("%s %s%s", result, prefix, array[i]);
         free(tmp);
-        if (!result) return NULL;  // format_string失敗時の処理
+        if (!result) return NULL;  
     }
     return result;
 }
@@ -110,7 +110,6 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, 
             return NULL;
         }
 
-        // メモリリークを修正：baseを別途作成・解放
         char *ldlibs_base = format_string("LDLIBS_%s :=", p->project_name);
         char *ldlibs = collect_libs(p->libraries, ldlibs_base, "-l");
         free(ldlibs_base);
@@ -163,7 +162,7 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version, 
         if (p->compile_file && get_array_len(p->compile_file) > 0) {
             char *compile_files_base = format_string("EXTRA_SOURCES_%s :=", p->project_name);
             compile_files = collect_libs(p->compile_file, compile_files_base, " ");
-            free(compile_files_base);  // メモリリーク修正
+            free(compile_files_base);
         }
         if (!compile_files) {
             compile_files = format_string("EXTRA_SOURCES_%s :=", p->project_name);

@@ -14,4 +14,7 @@ void free_args(char **argv);
 /* impl at guid.c */
 char *generate_guid_v4();
 
+/* impl at gen_makefile.c */
+int get_array_len(char **array);
+
 #endif

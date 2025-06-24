@@ -24,16 +24,22 @@ int main(int argc, char **argv) {
   enable_ansi_escape_codes();
 
   // Define command line arguments
-  cmate_arg_t help = {"h", "help", NULL, "Display this help message", NULL, 0};
   cmate_arg_t output = {
       "o",      "output",
-      "<file>", "Change the output file destination (default: Makefile)",
+      "<file>", "Specify the output file (default: Makefile)",
       NULL,     0};
   cmate_arg_t toml = {
       "t",      "toml",
-      "<file>", "Change the TOML file to parse (default: project.toml)",
+      "<file>", "Specify the TOML file to parse (default: project.toml)",
       NULL,     0};
-  cmate_arg_t version = {"V", "version", NULL, "Display version info", NULL, 0};
+
+  cmate_arg_t run = {
+	 "r", "run",
+	 "<project>", "Run the specified project",
+	 NULL, 0};
+
+  cmate_arg_t help = {"h", "help", NULL, "Display this help message", NULL, 0};
+  cmate_arg_t version = {"V", "version", NULL, "Display version information", NULL, 0};
   cmate_arg_t init = {"i",  "init", NULL, "Generate a project.toml file",
                       NULL, 0};
   cmate_arg_t build = {"b", "build", NULL, "Build the project", NULL, 0};
@@ -49,6 +55,7 @@ int main(int argc, char **argv) {
   arrput(args, &version);
   arrput(args, &init);
   arrput(args, &build);
+  arrput(args, &run);
 
   nerrors = argparse(argc, argv, args);
 
@@ -93,8 +100,17 @@ int main(int argc, char **argv) {
 
   // Build the project
   if (build.count > 0) {
-    build_project(toml_file);
+    if (build_project(toml_file) == 0){
+    	if (run.count > 0) {
+		run_project(toml_file, run.value);
+	}
+    }
     goto cleanup;
+  }
+
+  if (run.count > 0){
+	  run_project(toml_file, run.value);
+	  goto cleanup;
   }
 
   if (!output_file || !toml_file) {
@@ -113,8 +129,13 @@ int main(int argc, char **argv) {
 	  goto cleanup;
   }
 
+  if (toml_dir == NULL) {
+	  ERR("Cmate.toml not found\n");
+	  goto cleanup;
+  }
+
   if (chdir(toml_dir) != 0) {
-    perror("Failed to find toml file");
+    perror("Failed to move toml_dir!");
     goto cleanup;
   }
 

@@ -19,6 +19,7 @@
 
 #ifdef _WIN32
 # define chdir(x) _chdir(x)
+# define getcwd(x,y) _getcwd(x, y)
 #endif
 
 #define CWD_SIZE 1024
@@ -32,11 +33,22 @@ int build_project(const char* toml_file) {
 
     if (getcwd(old_dir, sizeof(old_dir)) == NULL){
 	    perror("Failed to get current dir");
+	    free(toml_full_path);
+	    free(toml_dir);
+	    return 1;
+    }
+
+    if (toml_dir == NULL) {
+	    ERR("Cmate.toml not found\n");
+	    free(toml_full_path);
+	    free(toml_dir);
 	    return 1;
     }
 
     if (chdir(toml_dir) != 0){ 
 	    perror("Unable to find Cmate.toml!");
+	    free(toml_full_path);
+	    free(toml_dir);
 	    return 1;
     }
 

@@ -30,6 +30,7 @@
 # include <string.h>
 /* cmate */
 # include "build.h"
+# include "run.h"
 # include "cmate_arg_t.h"
 # include "embed_mkfile.h"
 # include "file_io.h"
