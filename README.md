@@ -88,8 +88,26 @@ project/
 ```bash
 git clone https://github.com/rock-db/cmate
 cd cmate
+./bootstrap.sh
 make
 ```
+
+---
+
+## Notice for Windows Users
+
+This software can be built on Windows, and a Windows binary is provided.  
+However, **proper functionality on Windows is not guaranteed**.  
+
+The main development and testing environment is Linux.  
+The Windows version is provided as-is, and may not work as expected.
+
+If it works for you, great.  
+**It does not work properly on my environment.**  
+If it does not work for you either, the cause may be your environment or Windows itself.
+
+Pull Requests to improve Windows support are always welcome.  
+However, simple Issues without proposed fixes may be ignored.
 
 ---
 
