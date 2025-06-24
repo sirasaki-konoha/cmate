@@ -1,5 +1,17 @@
 #ifndef _UTILS_H
 #define _UTILS_H
+#include "term_color.h"
+
+#ifndef NDEBUG
+#define DBG(fmt, ...) \
+	    do { \
+		            printf("%s " fmt, YELLOW("[DEBUG]"), ##__VA_ARGS__); \
+		        } while (0)
+#else
+#define DBG(fmt, ...) \
+	    do { } while (0)
+#endif
+
 
 /* impl at utils.c */
 char *format_string(const char *restrict __format, ...); /* defined at line 13 */

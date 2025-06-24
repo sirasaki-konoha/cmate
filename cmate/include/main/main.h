@@ -9,10 +9,7 @@
 #  include "windows_support.h"
 #  define MKDIR(dir) _mkdir(dir)
 #  define chdir(x) _chdir(x)
-#  define getcwd(x) _getcwd(x)
-
-#  include "visual_studio/sln/generate.h"
-#  include "visual_studio/vcxproj/generate.h"
+#  define getcwd(x, y) _getcwd(x, y)
 
 # else
 #  include "unistd.h"

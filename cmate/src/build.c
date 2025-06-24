@@ -54,7 +54,11 @@ int build_project(const char* toml_file) {
 
     INFO("Using configuration from: %s\n", toml_full_path);
     
-    process_makefile(toml_full_path, "Makefile", 0);
+    if (process_makefile(toml_full_path, "Makefile", 0) != 0) {
+	    free(toml_full_path);
+	    free(toml_dir);
+	    return 1;
+    }
 
     INFO("Cleaning up previous build artifacts\n");
     char *args_clean[] = {"make", "clean", NULL};

@@ -18,7 +18,7 @@
 
 #ifdef _WIN32
 # define chdir(x) _chdir(x)
-# define getcwd(x) _getcwd(x)
+# define getcwd(x, y) _getcwd(x, y)
 #endif
 
 #define CWD_SIZE 1024
