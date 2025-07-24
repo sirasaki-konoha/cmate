@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "tomlc99/toml.h"
 
 #include "run.h"
 #include "term_color.h"
@@ -68,6 +67,16 @@ int run_project(const char* toml_file, const char* exec_project) {
 #else
 	char *exec_command = format_string("%s/bin/%s", toml_dir, exec_project);
 #endif
+
+	FILE *file;
+	if (! (file = fopen(exec_command, "r"))){
+		ERR("The project has not been built yet.\n");
+		ret = 1;
+		free(exec_command);
+		free_toml_parsed(tml, count);
+		goto free_and_exit;
+	}
+
 	char *args[] = {exec_command, NULL};
 	INFO("Running %s\n", exec_command);
 	run_command_stdout(exec_command, args);
