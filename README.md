@@ -33,6 +33,8 @@ cmate [options]
 * `-o`, `--output <file>` : Output filename for Makefile (default: `Makefile`).
 * `-t`, `--toml <file>` : Use custom TOML config (default: `Cmate.toml`).
 * `-b`, `--build` : Immediately run `make` after generating Makefile.
+* `-r`, `--run <project>` : Run the specified project. You can pass additional arguments to the program by appending `--`.
+
 
 ---
 
