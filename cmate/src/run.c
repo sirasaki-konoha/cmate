@@ -8,6 +8,7 @@
 #include "toml_utils.h"
 #include "find_toml.h"
 #include "run_command_stdout.h"
+#include "stb_ds.h"
 
 #ifdef _WIN32
 # include <direct.h>
@@ -20,6 +21,12 @@
 #define CWD_SIZE 1024
 
 int run_project(const char* toml_file, const char* exec_project) {
+	return run_project_with_args(toml_file, exec_project, NULL);
+}
+
+int run_project_with_args(const char *toml_file, const char *exec_project, char** args)
+{
+
 	char *toml_dir = get_toml_dir(toml_file);
 	char *toml_full = get_toml_file(toml_file);
 	char old_dir[CWD_SIZE];
@@ -77,10 +84,40 @@ int run_project(const char* toml_file, const char* exec_project) {
 		goto free_and_exit;
 	}
 
-	char *args[] = {exec_command, NULL};
+
+	char **args_exec = NULL;
+
+	if (args != NULL) {
+		size_t args_len = arrlen(args);
+		args_exec = malloc(sizeof(char*) * (args_len + 2)); 
+		if (!args_exec) {
+			perror("malloc args_exec");
+			ret = 1;
+			goto free_and_exit;
+		}
+
+		args_exec[0] = exec_command;
+		for (size_t i = 0; i < args_len; i++) {
+			args_exec[i + 1] = args[i];
+		}
+		args_exec[args_len + 1] = NULL;
+	} else {
+		char **args_exec_single = malloc(sizeof(char*) * 2);
+		if (!args_exec_single) {
+			perror("malloc args_exec_single");
+			ret = 1;
+			goto free_and_exit;
+		}
+		args_exec_single[0] = exec_command;
+		args_exec_single[1] = NULL;
+		args_exec = args_exec_single;
+	}
+
 	INFO("Running %s\n", exec_command);
-	run_command_stdout(exec_command, args);
-		
+	run_command_stdout(exec_command, args_exec);
+
+	free(args_exec);
+
 
 	free(exec_command);
 	free_toml_parsed(tml, count);

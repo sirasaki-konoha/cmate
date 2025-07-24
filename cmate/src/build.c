@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include <errno.h>
 #include <stdlib.h>
 
 #ifdef _WIN32
 # include <direct.h>
+# include <windows.h>
 #else
 # include <unistd.h>
 #endif
@@ -11,9 +11,7 @@
 #include "build.h"
 #include "find_toml.h"
 #include "term_color.h"
-#include "toml_utils.h"
 #include "utils.h"
-#include "file_io.h"
 #include "run_command.h"
 #include "main/process_makefile.h"
 
@@ -24,6 +22,16 @@
 
 #define CWD_SIZE 1024
 
+
+int get_cpu_threads() {
+#ifdef _WIN32
+	SYSTEM_IMFO sysinfo;
+	GetSystemInfo(&sysinfo);
+	return sysinfo.dwNumberOfProcessors;
+#else
+	return sysconf(_SC_NPROCESSORS_ONLN);
+#endif
+}
 
 int build_project(const char* toml_file) {
     char *toml_full_path = get_toml_file(toml_file);
@@ -52,7 +60,7 @@ int build_project(const char* toml_file) {
 	    return 1;
     }
 
-    INFO("Using configuration from: %s\n", toml_full_path);
+    INFO("Using Configuration %s\n", toml_full_path);
     
     if (process_makefile(toml_full_path, "Makefile", 0) == 1) {
 	    free(toml_full_path);
@@ -60,15 +68,19 @@ int build_project(const char* toml_file) {
 	    return 1;
     }
 
-    INFO("Cleaning up previous build artifacts\n");
-    char *args_clean[] = {"make", "clean", NULL};
-    if (run_command_stderr_only("make", args_clean))
-        ERR("Failed to clean previous build artifacts. Continuing with build\n");
-    
-    INFO("Running make (make -j)\n");
-    char *args[] = {"make", "-j", NULL};
+    int cpu_threads = get_cpu_threads();
+    if (cpu_threads > 8) {
+	    cpu_threads = cpu_threads - 4;
+    }
+
+    char *parallel = format_string("-j%d", cpu_threads);
+
+    INFO("Build Project (Using %d threads)\n", cpu_threads);
+
+    char *args[] = {"make", parallel, NULL};
     if (!run_command_stderr_only("make", args)) {
         INFO("Build completed successfully.\n");
+	free(args[1]);
 	goto cleanup;
     } else {
         ERR("Build failed. Please check the output for errors.\n");
