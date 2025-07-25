@@ -68,10 +68,15 @@ int build_project(const char* toml_file) {
 	    return 1;
     }
 
+
     int cpu_threads = get_cpu_threads();
     if (cpu_threads > 8) {
-	    cpu_threads = cpu_threads - 4;
+	    cpu_threads -= 4;
+    } else if (cpu_threads > 2) {
+	    cpu_threads -= 2;
     }
+
+    cpu_threads = (cpu_threads < 1) ? 1 : cpu_threads;
 
     char *parallel = format_string("-j%d", cpu_threads);
 
