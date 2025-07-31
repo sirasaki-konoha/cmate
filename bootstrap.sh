@@ -3,7 +3,8 @@
 found=0
 cmate_found=0
 
-if cat Cmate.toml > /dev/null 2>&1; then
+#if cat Cmate.toml > /dev/null 2>&1; then
+if [ -e Cmate.toml ]; then
 	printf "\e[32m>> \e[0mCmate.toml found in $(pwd)\n"
 	cmate_found=1
 fi
