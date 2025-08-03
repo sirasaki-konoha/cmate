@@ -5,7 +5,7 @@
 
 [[bin]]
 # [Required] Project name (used for executable name)
-project = "template"
+project = ""
 
 # [Required] C compiler to use (gcc/clang/etc)
 # Use "auto" to automatically detect the host's default C compiler,

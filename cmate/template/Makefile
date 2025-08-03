@@ -4,7 +4,7 @@ CFLAGS_ALL :=
 LDFLAGS_ALL :=
 
 # Directory settings
-OBJDIR := deps/object
+OBJDIR := .cmate/deps/object
 BINDIR := bin
 
 # Default GOAL
@@ -79,7 +79,7 @@ release:
 
 clean:
 	@echo "Cleaning up..."
-	@rm -rf $(OBJDIR) $(BINDIR) deps
+	@rm -rf $(OBJDIR) $(BINDIR)
 	@echo "Cleanup completed"
 
 rebuild: clean all
