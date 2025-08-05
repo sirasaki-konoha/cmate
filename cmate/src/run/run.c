@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "run.h"
-#include "term_color.h"
-#include "utils.h"
-#include "toml_utils.h"
-#include "find_toml.h"
-#include "run_command_stdout.h"
-#include "stb_ds.h"
+#include "run/run.h"
+#include "utils/term_color.h"
+#include "utils/utils.h"
+#include "toml/toml_utils.h"
+#include "toml/find_toml.h"
+#include "utils/run_command_stdout.h"
+#include "utils/stb_ds.h"
 
 #ifdef _WIN32
 # include <direct.h>

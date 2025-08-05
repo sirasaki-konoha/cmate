@@ -1,4 +1,5 @@
 /.cmate
+/.cache
 /bin
 compile_commands.json
 /.vs

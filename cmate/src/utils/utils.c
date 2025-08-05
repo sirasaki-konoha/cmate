@@ -4,11 +4,11 @@
 #include <string.h>
 #include "tomlc99/toml.h"
 
-#include "file_io.h"
-#include "term_color.h"
-#include "embed_mkfile.h"
-#include "toml_utils.h"
-#include "utils.h"
+#include "file_io/file_io.h"
+#include "utils/term_color.h"
+#include "makefile/embed_mkfile.h"
+#include "toml/toml_utils.h"
+#include "utils/utils.h"
 
 char *format_string(const char *restrict __format, ...) {
   va_list args;

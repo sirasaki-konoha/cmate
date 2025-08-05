@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include "tomlc99/toml.h"
 
-#include "file_io.h"
-#include "toml_utils.h"
+#include "file_io/file_io.h"
+#include "toml/toml_utils.h"
 
 toml_parsed_t *parse_toml(const char *path, int *out_count) {
     FILE *file = fopen(path, "r");

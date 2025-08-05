@@ -1,5 +1,5 @@
 #include "main/main.h"
-#include "term_color.h"
+#include "utils/term_color.h"
 
 /**
  * Process TOML file and generate Makefile
@@ -18,6 +18,9 @@ int process_makefile(const char *toml_file, const char *output_file,
   int count = 0;
   // Parse TOML file
   toml_parsed_t *tml = parse_toml(toml_file, &count);
+
+  // check librarys
+  // if (check_librarys(tml, count, CMATE_VERSION, output){}
 
   // Generate Makefile content
   char *makefile_content = gen_makefile(tml, count, CMATE_VERSION, output);

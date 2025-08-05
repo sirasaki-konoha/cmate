@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "depend.h"
-#include "embed_mkfile.h"
-#include "gen_makefile.h"
-#include "term_color.h"
-#include "toml_utils.h"
-#include "utils.h"
+#include "utils/depend.h"
+#include "makefile/embed_mkfile.h"
+#include "makefile/gen_makefile.h"
+#include "utils/term_color.h"
+#include "toml/toml_utils.h"
+#include "utils/utils.h"
 
 #define info(...) if (output) { INFO(__VA_ARGS__); }
 

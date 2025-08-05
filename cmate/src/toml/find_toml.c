@@ -8,12 +8,12 @@
 # include <unistd.h>
 #endif
 
-#include "build.h"
-#include "term_color.h"
-#include "toml_utils.h"
-#include "utils.h"
-#include "file_io.h"
-#include "run_command.h"
+#include "build/build.h"
+#include "utils/term_color.h"
+#include "toml/toml_utils.h"
+#include "utils/utils.h"
+#include "file_io/file_io.h"
+#include "utils/run_command.h"
 #include "main/process_makefile.h"
 
 #ifdef _WIN32

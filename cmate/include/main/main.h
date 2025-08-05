@@ -13,7 +13,7 @@
 
 # else
 #  include "unistd.h"
-#  include "term_color.h"
+#  include "utils/term_color.h"
 #  include <sys/stat.h>
 #  include <sys/types.h>
 
@@ -21,24 +21,24 @@
 # endif
 
 # include <errno.h>
-# include <stb_ds.h>
+# include <utils/stb_ds.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 /* cmate */
-# include "build.h"
-# include "run.h"
+# include "build/build.h"
+# include "run/run.h"
 # include "cmate_arg_t.h"
-# include "embed_mkfile.h"
-# include "file_io.h"
-# include "gen_makefile.h"
+# include "makefile/embed_mkfile.h"
+# include "file_io/file_io.h"
+# include "makefile/gen_makefile.h"
 # include "main/arg.h"
 # include "main/init.h"
 # include "main/process_makefile.h"
-# include "toml_utils.h"
-# include "utils.h"
-# include "windows_support.h"
-# include "find_toml.h"
+# include "toml/toml_utils.h"
+# include "utils/utils.h"
+# include "windows/windows_support.h"
+# include "toml/find_toml.h"
 
 /* CMATE version settings etc. */
 

@@ -1,5 +1,5 @@
 #include "main/main.h"
-#include "term_color.h"
+#include "utils/term_color.h"
 #include <stdio.h>
 
 cmate_arg_t **args = NULL;

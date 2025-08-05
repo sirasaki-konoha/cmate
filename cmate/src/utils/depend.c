@@ -3,12 +3,11 @@
 #include <string.h>
 #include "tomlc99/toml.h"
 
-#include "utils.h"
-#include "run_command.h"
-#include "gen_makefile.h"
-#include "toml_utils.h"
-#include "term_color.h"
-#include "utils.h"
+#include "utils/utils.h"
+#include "utils/run_command.h"
+#include "utils/term_color.h"
+#include "makefile/gen_makefile.h"
+#include "toml/toml_utils.h"
 
 char *auto_detect_compiler() {
   char *compilers[] = {"clang", "gcc", "cc", "zig cc" ,NULL};

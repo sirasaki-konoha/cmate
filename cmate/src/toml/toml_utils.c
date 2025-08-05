@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "toml_utils.h"
+#include "toml/toml_utils.h"
 
 /**
  * Get a array of strings from a TOML array.
