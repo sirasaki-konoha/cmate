@@ -4,13 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "build/build.h"
 #include "toml/find_toml.h"
 #include "toml/toml_utils.h"
 #include "utils/run_command_stdout.h"
 #include "utils/stb_ds.h"
 #include "utils/term_color.h"
 #include "utils/utils.h"
-#include "build/build.h"
 
 #ifdef _WIN32
 #include <direct.h>
@@ -77,32 +77,31 @@ int run_project_with_args(const char *toml_file, const char *exec_project,
 
   FILE *file;
 
-	int running = 1;
+  int running = 1;
 
-	while (running) {
-		if (running == 2) {
-			ERR("Build failed");
-			ERR("Run failed");
-			free_toml_parsed(tml, count);
-  		free(exec_command);
-			goto free_and_exit;
-		}
-		running += 1;
-		if (!(file = fopen(exec_command, "r"))) {
-			if (running >= 3) {
-				INFO("Project not ready. Rebuild...\n");
-			} else {
-				INFO("Building project...\n");
-			}
+  while (running) {
+    if (running == 2) {
+      ERR("Build failed");
+      ERR("Run failed");
+      free_toml_parsed(tml, count);
+      free(exec_command);
+      goto free_and_exit;
+    }
+    running += 1;
+    if (!(file = fopen(exec_command, "r"))) {
+      if (running >= 3) {
+        INFO("Project not ready. Rebuild...\n");
+      } else {
+        INFO("Building project...\n");
+      }
 
-			if (!build_project(toml_file, 0)) {
-				running = 0;
-			}
-		} else {
-			running = 0;
-		}
-
-	}
+      if (!build_project(toml_file, 0)) {
+        running = 0;
+      }
+    } else {
+      running = 0;
+    }
+  }
 
   char **args_exec = NULL;
 

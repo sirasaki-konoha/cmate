@@ -34,7 +34,8 @@ int get_cpu_threads() {
 
 int build_project(const char *toml_file, int output) {
 #undef INFO
-#define INFO(fmt, ...) if (output) printf("%s " fmt, GREEN(">>>"), ##__VA_ARGS__)
+#define INFO(fmt, ...) \
+  if (output) printf("%s " fmt, GREEN(">>>"), ##__VA_ARGS__)
   char *toml_full_path = get_toml_file(toml_file);
   char *toml_dir = get_toml_dir(toml_file);
   char old_dir[CWD_SIZE];
@@ -71,7 +72,7 @@ int build_project(const char *toml_file, int output) {
 
   int cpu_threads = get_cpu_threads();
 
-	cpu_threads = cpu_threads < 2 ? cpu_threads : cpu_threads / 2;
+  cpu_threads = cpu_threads < 2 ? cpu_threads : cpu_threads / 2;
 
   char *parallel = format_string("-j%d", cpu_threads);
 
