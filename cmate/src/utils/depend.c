@@ -1,16 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "tomlc99/toml.h"
 
-#include "utils/utils.h"
-#include "utils/run_command.h"
-#include "utils/term_color.h"
 #include "makefile/gen_makefile.h"
 #include "toml/toml_utils.h"
+#include "tomlc99/toml.h"
+#include "utils/run_command.h"
+#include "utils/term_color.h"
+#include "utils/utils.h"
 
 char *auto_detect_compiler() {
-  char *compilers[] = {"clang", "gcc", "cc", "zig cc" ,NULL};
+  char *compilers[] = {"clang", "gcc", "cc", "zig cc", NULL};
   int len = get_array_len(compilers);
   char *detect_compiler = NULL;
 

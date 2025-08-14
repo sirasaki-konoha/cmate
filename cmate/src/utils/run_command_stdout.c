@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include "utils/utils.h"
 
 #ifdef _WIN32
@@ -70,4 +71,3 @@ int run_command_stdout(const char *cmd, char *const argv[]) {
   }
 }
 #endif
-

@@ -9,7 +9,6 @@
  */
 int process_makefile(const char *toml_file, const char *output_file,
                      int output) {
-
   if (!toml_file || !output_file) {
     ERR("Invalid file paths\n");
     return 1;

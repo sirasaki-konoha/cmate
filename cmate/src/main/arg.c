@@ -1,6 +1,7 @@
+#include "main/arg.h"
+
 #include "main/main.h"
 #include "utils/term_color.h"
-#include "main/arg.h"
 
 /**
  * Parse arguments from command line

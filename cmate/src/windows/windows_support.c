@@ -1,6 +1,7 @@
 #ifdef _WIN32
-#include <windows.h>
 #include <stdio.h>
+#include <windows.h>
+
 #include "term_color.h"
 
 void enable_ansi_escape_codes() {
@@ -26,5 +27,4 @@ void enable_ansi_escape_codes() {
 #else
 void enable_ansi_escape_codes() {}
 
-#endif // _WIN32
-
+#endif  // _WIN32

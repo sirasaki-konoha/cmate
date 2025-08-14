@@ -26,6 +26,7 @@
 */
 #define _POSIX_C_SOURCE 200809L
 #include "tomlc99/toml.h"
+
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -39,10 +40,8 @@ static void *(*ppmalloc)(size_t) = malloc;
 static void (*ppfree)(void *) = free;
 
 void toml_set_memutil(void *(*xxmalloc)(size_t), void (*xxfree)(void *)) {
-  if (xxmalloc)
-    ppmalloc = xxmalloc;
-  if (xxfree)
-    ppfree = xxfree;
+  if (xxmalloc) ppmalloc = xxmalloc;
+  if (xxfree) ppfree = xxfree;
 }
 
 #define ALIGN8(sz) (((sz) + 7) & ~7)
@@ -103,8 +102,7 @@ int toml_utf8_to_ucs(const char *orig, int len, int64_t *ret) {
      0xxxxxxx
   */
   if (0 == (i >> 7)) {
-    if (len < 1)
-      return -1;
+    if (len < 1) return -1;
     v = i;
     return *ret = v, 1;
   }
@@ -112,13 +110,11 @@ int toml_utf8_to_ucs(const char *orig, int len, int64_t *ret) {
      110xxxxx 10xxxxxx
   */
   if (0x6 == (i >> 5)) {
-    if (len < 2)
-      return -1;
+    if (len < 2) return -1;
     v = i & 0x1f;
     for (int j = 0; j < 1; j++) {
       i = *buf++;
-      if (0x2 != (i >> 6))
-        return -1;
+      if (0x2 != (i >> 6)) return -1;
       v = (v << 6) | (i & 0x3f);
     }
     return *ret = v, (const char *)buf - orig;
@@ -128,13 +124,11 @@ int toml_utf8_to_ucs(const char *orig, int len, int64_t *ret) {
      1110xxxx 10xxxxxx 10xxxxxx
   */
   if (0xE == (i >> 4)) {
-    if (len < 3)
-      return -1;
+    if (len < 3) return -1;
     v = i & 0x0F;
     for (int j = 0; j < 2; j++) {
       i = *buf++;
-      if (0x2 != (i >> 6))
-        return -1;
+      if (0x2 != (i >> 6)) return -1;
       v = (v << 6) | (i & 0x3f);
     }
     return *ret = v, (const char *)buf - orig;
@@ -144,13 +138,11 @@ int toml_utf8_to_ucs(const char *orig, int len, int64_t *ret) {
      11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
   */
   if (0x1E == (i >> 3)) {
-    if (len < 4)
-      return -1;
+    if (len < 4) return -1;
     v = i & 0x07;
     for (int j = 0; j < 3; j++) {
       i = *buf++;
-      if (0x2 != (i >> 6))
-        return -1;
+      if (0x2 != (i >> 6)) return -1;
       v = (v << 6) | (i & 0x3f);
     }
     return *ret = v, (const char *)buf - orig;
@@ -160,13 +152,11 @@ int toml_utf8_to_ucs(const char *orig, int len, int64_t *ret) {
      111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
   */
   if (0x3E == (i >> 2)) {
-    if (len < 5)
-      return -1;
+    if (len < 5) return -1;
     v = i & 0x03;
     for (int j = 0; j < 4; j++) {
       i = *buf++;
-      if (0x2 != (i >> 6))
-        return -1;
+      if (0x2 != (i >> 6)) return -1;
       v = (v << 6) | (i & 0x3f);
     }
     return *ret = v, (const char *)buf - orig;
@@ -176,13 +166,11 @@ int toml_utf8_to_ucs(const char *orig, int len, int64_t *ret) {
      1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
   */
   if (0x7e == (i >> 1)) {
-    if (len < 6)
-      return -1;
+    if (len < 6) return -1;
     v = i & 0x01;
     for (int j = 0; j < 5; j++) {
       i = *buf++;
-      if (0x2 != (i >> 6))
-        return -1;
+      if (0x2 != (i >> 6)) return -1;
       v = (v << 6) | (i & 0x3f);
     }
     return *ret = v, (const char *)buf - orig;
@@ -202,16 +190,13 @@ int toml_ucs_to_utf8(int64_t code, char buf[6]) {
    * as 0xfffe and 0xffff (UCS noncharacters) should not appear in
    * conforming UTF-8 streams.
    */
-  if (0xd800 <= code && code <= 0xdfff)
-    return -1;
-  if (0xfffe <= code && code <= 0xffff)
-    return -1;
+  if (0xd800 <= code && code <= 0xdfff) return -1;
+  if (0xfffe <= code && code <= 0xffff) return -1;
 
   /* 0x00000000 - 0x0000007F:
      0xxxxxxx
   */
-  if (code < 0)
-    return -1;
+  if (code < 0) return -1;
   if (code <= 0x7F) {
     buf[0] = (unsigned char)code;
     return 1;
@@ -323,8 +308,7 @@ struct toml_table_t {
 };
 
 static inline void xfree(const void *x) {
-  if (x)
-    FREE((void *)(intptr_t)x);
+  if (x) FREE((void *)(intptr_t)x);
 }
 
 enum tokentype_t {
@@ -409,8 +393,7 @@ static int e_forbid(context_t *ctx, int lineno, const char *msg) {
 
 static void *expand(void *p, int sz, int newsz) {
   void *s = MALLOC(newsz);
-  if (!s)
-    return 0;
+  if (!s) return 0;
 
   if (p) {
     memcpy(s, p, sz);
@@ -421,8 +404,7 @@ static void *expand(void *p, int sz, int newsz) {
 
 static void **expand_ptrarr(void **p, int n) {
   void **s = MALLOC((n + 1) * sizeof(void *));
-  if (!s)
-    return 0;
+  if (!s) return 0;
 
   s[n] = 0;
   if (p) {
@@ -434,8 +416,7 @@ static void **expand_ptrarr(void **p, int n) {
 
 static toml_arritem_t *expand_arritem(toml_arritem_t *p, int n) {
   toml_arritem_t *pp = expand(p, n * sizeof(*p), (n + 1) * sizeof(*p));
-  if (!pp)
-    return 0;
+  if (!pp) return 0;
 
   memset(&pp[n], 0, sizeof(pp[n]));
   return pp;
@@ -465,8 +446,7 @@ static char *norm_lit_str(const char *src, int srclen, int multiline,
     }
 
     /* finished? */
-    if (sp >= sq)
-      break;
+    if (sp >= sq) break;
 
     ch = *sp++;
     /* control characters other than tab is not allowed */
@@ -514,8 +494,7 @@ static char *norm_basic_str(const char *src, int srclen, int multiline,
     }
 
     /* finished? */
-    if (sp >= sq)
-      break;
+    if (sp >= sq) break;
 
     ch = *sp++;
     if (ch != '\\') {
@@ -544,7 +523,6 @@ static char *norm_basic_str(const char *src, int srclen, int multiline,
 
     /* for multi-line, we want to kill line-ending-backslash ... */
     if (multiline) {
-
       // if there is only whitespace after the backslash ...
       if (sp[strspn(sp, " \t\r")] == '\n') {
         /* skip all the following whitespaces */
@@ -556,62 +534,62 @@ static char *norm_basic_str(const char *src, int srclen, int multiline,
     /* get the escaped char */
     ch = *sp++;
     switch (ch) {
-    case 'u':
-    case 'U': {
-      int64_t ucs = 0;
-      int nhex = (ch == 'u' ? 4 : 8);
-      for (int i = 0; i < nhex; i++) {
-        if (sp >= sq) {
-          snprintf(errbuf, errbufsz, "\\%c expects %d hex chars", ch, nhex);
+      case 'u':
+      case 'U': {
+        int64_t ucs = 0;
+        int nhex = (ch == 'u' ? 4 : 8);
+        for (int i = 0; i < nhex; i++) {
+          if (sp >= sq) {
+            snprintf(errbuf, errbufsz, "\\%c expects %d hex chars", ch, nhex);
+            xfree(dst);
+            return 0;
+          }
+          ch = *sp++;
+          int v = ('0' <= ch && ch <= '9')
+                      ? ch - '0'
+                      : (('A' <= ch && ch <= 'F') ? ch - 'A' + 10 : -1);
+          if (-1 == v) {
+            snprintf(errbuf, errbufsz, "invalid hex chars for \\u or \\U");
+            xfree(dst);
+            return 0;
+          }
+          ucs = ucs * 16 + v;
+        }
+        int n = toml_ucs_to_utf8(ucs, &dst[off]);
+        if (-1 == n) {
+          snprintf(errbuf, errbufsz, "illegal ucs code in \\u or \\U");
           xfree(dst);
           return 0;
         }
-        ch = *sp++;
-        int v = ('0' <= ch && ch <= '9')
-                    ? ch - '0'
-                    : (('A' <= ch && ch <= 'F') ? ch - 'A' + 10 : -1);
-        if (-1 == v) {
-          snprintf(errbuf, errbufsz, "invalid hex chars for \\u or \\U");
-          xfree(dst);
-          return 0;
-        }
-        ucs = ucs * 16 + v;
+        off += n;
       }
-      int n = toml_ucs_to_utf8(ucs, &dst[off]);
-      if (-1 == n) {
-        snprintf(errbuf, errbufsz, "illegal ucs code in \\u or \\U");
+        continue;
+
+      case 'b':
+        ch = '\b';
+        break;
+      case 't':
+        ch = '\t';
+        break;
+      case 'n':
+        ch = '\n';
+        break;
+      case 'f':
+        ch = '\f';
+        break;
+      case 'r':
+        ch = '\r';
+        break;
+      case '"':
+        ch = '"';
+        break;
+      case '\\':
+        ch = '\\';
+        break;
+      default:
+        snprintf(errbuf, errbufsz, "illegal escape char \\%c", ch);
         xfree(dst);
         return 0;
-      }
-      off += n;
-    }
-      continue;
-
-    case 'b':
-      ch = '\b';
-      break;
-    case 't':
-      ch = '\t';
-      break;
-    case 'n':
-      ch = '\n';
-      break;
-    case 'f':
-      ch = '\f';
-      break;
-    case 'r':
-      ch = '\r';
-      break;
-    case '"':
-      ch = '"';
-      break;
-    case '\\':
-      ch = '\\';
-      break;
-    default:
-      snprintf(errbuf, errbufsz, "illegal escape char \\%c", ch);
-      xfree(dst);
-      return 0;
     }
 
     dst[off++] = ch;
@@ -669,10 +647,8 @@ static char *normalize_key(context_t *ctx, token_t strtok) {
   const char *xp;
   for (xp = sp; xp != sq; xp++) {
     int k = *xp;
-    if (isalnum(k))
-      continue;
-    if (k == '_' || k == '-')
-      continue;
+    if (isalnum(k)) continue;
+    if (k == '_' || k == '-') continue;
     e_badkey(ctx, lineno);
     return 0;
   }
@@ -695,12 +671,9 @@ static int check_key(toml_table_t *tab, const char *key,
   int i;
   void *dummy;
 
-  if (!ret_tab)
-    ret_tab = (toml_table_t **)&dummy;
-  if (!ret_arr)
-    ret_arr = (toml_array_t **)&dummy;
-  if (!ret_val)
-    ret_val = (toml_keyval_t **)&dummy;
+  if (!ret_tab) ret_tab = (toml_table_t **)&dummy;
+  if (!ret_arr) ret_arr = (toml_array_t **)&dummy;
+  if (!ret_val) ret_val = (toml_keyval_t **)&dummy;
 
   *ret_tab = 0;
   *ret_arr = 0;
@@ -739,8 +712,7 @@ static toml_keyval_t *create_keyval_in_table(context_t *ctx, toml_table_t *tab,
    * remember to free it if we error out.
    */
   char *newkey = normalize_key(ctx, keytok);
-  if (!newkey)
-    return 0;
+  if (!newkey) return 0;
 
   /* if key exists: error out. */
   toml_keyval_t *dest = 0;
@@ -780,8 +752,7 @@ static toml_table_t *create_keytable_in_table(context_t *ctx, toml_table_t *tab,
    * remember to free it if we error out.
    */
   char *newkey = normalize_key(ctx, keytok);
-  if (!newkey)
-    return 0;
+  if (!newkey) return 0;
 
   /* if key exists: error out */
   toml_table_t *dest = 0;
@@ -828,8 +799,7 @@ static toml_array_t *create_keyarray_in_table(context_t *ctx, toml_table_t *tab,
    * remember to free it if we error out.
    */
   char *newkey = normalize_key(ctx, keytok);
-  if (!newkey)
-    return 0;
+  if (!newkey) return 0;
 
   /* if key exists: error out */
   if (key_kind(tab, newkey)) {
@@ -918,10 +888,8 @@ static toml_table_t *create_table_in_array(context_t *ctx,
 
 static int skip_newlines(context_t *ctx, int isdotspecial) {
   while (ctx->tok.tok == NEWLINE) {
-    if (next_token(ctx, isdotspecial))
-      return -1;
-    if (ctx->tok.eof)
-      break;
+    if (next_token(ctx, isdotspecial)) return -1;
+    if (ctx->tok.eof) break;
   }
   return 0;
 }
@@ -930,11 +898,9 @@ static int parse_keyval(context_t *ctx, toml_table_t *tab);
 
 static inline int eat_token(context_t *ctx, tokentype_t typ, int isdotspecial,
                             const char *fline) {
-  if (ctx->tok.tok != typ)
-    return e_internal(ctx, fline);
+  if (ctx->tok.tok != typ) return e_internal(ctx, fline);
 
-  if (next_token(ctx, isdotspecial))
-    return -1;
+  if (next_token(ctx, isdotspecial)) return -1;
 
   return 0;
 }
@@ -943,8 +909,7 @@ static inline int eat_token(context_t *ctx, tokentype_t typ, int isdotspecial,
  * Parse the table.
  */
 static int parse_inline_table(context_t *ctx, toml_table_t *tab) {
-  if (eat_token(ctx, LBRACE, 1, FLINE))
-    return -1;
+  if (eat_token(ctx, LBRACE, 1, FLINE)) return -1;
 
   for (;;) {
     if (ctx->tok.tok == NEWLINE)
@@ -952,14 +917,12 @@ static int parse_inline_table(context_t *ctx, toml_table_t *tab) {
                       "newline not allowed in inline table");
 
     /* until } */
-    if (ctx->tok.tok == RBRACE)
-      break;
+    if (ctx->tok.tok == RBRACE) break;
 
     if (ctx->tok.tok != STRING)
       return e_syntax(ctx, ctx->tok.lineno, "expect a string");
 
-    if (parse_keyval(ctx, tab))
-      return -1;
+    if (parse_keyval(ctx, tab)) return -1;
 
     if (ctx->tok.tok == NEWLINE)
       return e_syntax(ctx, ctx->tok.lineno,
@@ -967,15 +930,13 @@ static int parse_inline_table(context_t *ctx, toml_table_t *tab) {
 
     /* on comma, continue to scan for next keyval */
     if (ctx->tok.tok == COMMA) {
-      if (eat_token(ctx, COMMA, 1, FLINE))
-        return -1;
+      if (eat_token(ctx, COMMA, 1, FLINE)) return -1;
       continue;
     }
     break;
   }
 
-  if (eat_token(ctx, RBRACE, 1, FLINE))
-    return -1;
+  if (eat_token(ctx, RBRACE, 1, FLINE)) return -1;
 
   tab->readonly = 1;
 
@@ -984,117 +945,99 @@ static int parse_inline_table(context_t *ctx, toml_table_t *tab) {
 
 static int valtype(const char *val) {
   toml_timestamp_t ts;
-  if (*val == '\'' || *val == '"')
-    return 's';
-  if (0 == toml_rtob(val, 0))
-    return 'b';
-  if (0 == toml_rtoi(val, 0))
-    return 'i';
-  if (0 == toml_rtod(val, 0))
-    return 'd';
+  if (*val == '\'' || *val == '"') return 's';
+  if (0 == toml_rtob(val, 0)) return 'b';
+  if (0 == toml_rtoi(val, 0)) return 'i';
+  if (0 == toml_rtod(val, 0)) return 'd';
   if (0 == toml_rtots(val, &ts)) {
-    if (ts.year && ts.hour)
-      return 'T'; /* timestamp */
-    if (ts.year)
-      return 'D'; /* date */
-    return 't';   /* time */
+    if (ts.year && ts.hour) return 'T'; /* timestamp */
+    if (ts.year) return 'D';            /* date */
+    return 't';                         /* time */
   }
   return 'u'; /* unknown */
 }
 
 /* We are at '[...]' */
 static int parse_array(context_t *ctx, toml_array_t *arr) {
-  if (eat_token(ctx, LBRACKET, 0, FLINE))
-    return -1;
+  if (eat_token(ctx, LBRACKET, 0, FLINE)) return -1;
 
   for (;;) {
-    if (skip_newlines(ctx, 0))
-      return -1;
+    if (skip_newlines(ctx, 0)) return -1;
 
     /* until ] */
-    if (ctx->tok.tok == RBRACKET)
-      break;
+    if (ctx->tok.tok == RBRACKET) break;
 
     switch (ctx->tok.tok) {
-    case STRING: {
-      /* set array kind if this will be the first entry */
-      if (arr->kind == 0)
-        arr->kind = 'v';
-      else if (arr->kind != 'v')
-        arr->kind = 'm';
+      case STRING: {
+        /* set array kind if this will be the first entry */
+        if (arr->kind == 0)
+          arr->kind = 'v';
+        else if (arr->kind != 'v')
+          arr->kind = 'm';
 
-      char *val = ctx->tok.ptr;
-      int vlen = ctx->tok.len;
+        char *val = ctx->tok.ptr;
+        int vlen = ctx->tok.len;
 
-      /* make a new value in array */
-      toml_arritem_t *newval = create_value_in_array(ctx, arr);
-      if (!newval)
-        return e_outofmemory(ctx, FLINE);
+        /* make a new value in array */
+        toml_arritem_t *newval = create_value_in_array(ctx, arr);
+        if (!newval) return e_outofmemory(ctx, FLINE);
 
-      if (!(newval->val = STRNDUP(val, vlen)))
-        return e_outofmemory(ctx, FLINE);
+        if (!(newval->val = STRNDUP(val, vlen)))
+          return e_outofmemory(ctx, FLINE);
 
-      newval->valtype = valtype(newval->val);
+        newval->valtype = valtype(newval->val);
 
-      /* set array type if this is the first entry */
-      if (arr->nitem == 1)
-        arr->type = newval->valtype;
-      else if (arr->type != newval->valtype)
-        arr->type = 'm'; /* mixed */
+        /* set array type if this is the first entry */
+        if (arr->nitem == 1)
+          arr->type = newval->valtype;
+        else if (arr->type != newval->valtype)
+          arr->type = 'm'; /* mixed */
 
-      if (eat_token(ctx, STRING, 0, FLINE))
-        return -1;
-      break;
+        if (eat_token(ctx, STRING, 0, FLINE)) return -1;
+        break;
+      }
+
+      case LBRACKET: { /* [ [array], [array] ... ] */
+        /* set the array kind if this will be the first entry */
+        if (arr->kind == 0)
+          arr->kind = 'a';
+        else if (arr->kind != 'a')
+          arr->kind = 'm';
+
+        toml_array_t *subarr = create_array_in_array(ctx, arr);
+        if (!subarr) return -1;
+        if (parse_array(ctx, subarr)) return -1;
+        break;
+      }
+
+      case LBRACE: { /* [ {table}, {table} ... ] */
+        /* set the array kind if this will be the first entry */
+        if (arr->kind == 0)
+          arr->kind = 't';
+        else if (arr->kind != 't')
+          arr->kind = 'm';
+
+        toml_table_t *subtab = create_table_in_array(ctx, arr);
+        if (!subtab) return -1;
+        if (parse_inline_table(ctx, subtab)) return -1;
+        break;
+      }
+
+      default:
+        return e_syntax(ctx, ctx->tok.lineno, "syntax error");
     }
 
-    case LBRACKET: { /* [ [array], [array] ... ] */
-      /* set the array kind if this will be the first entry */
-      if (arr->kind == 0)
-        arr->kind = 'a';
-      else if (arr->kind != 'a')
-        arr->kind = 'm';
-
-      toml_array_t *subarr = create_array_in_array(ctx, arr);
-      if (!subarr)
-        return -1;
-      if (parse_array(ctx, subarr))
-        return -1;
-      break;
-    }
-
-    case LBRACE: { /* [ {table}, {table} ... ] */
-      /* set the array kind if this will be the first entry */
-      if (arr->kind == 0)
-        arr->kind = 't';
-      else if (arr->kind != 't')
-        arr->kind = 'm';
-
-      toml_table_t *subtab = create_table_in_array(ctx, arr);
-      if (!subtab)
-        return -1;
-      if (parse_inline_table(ctx, subtab))
-        return -1;
-      break;
-    }
-
-    default:
-      return e_syntax(ctx, ctx->tok.lineno, "syntax error");
-    }
-
-    if (skip_newlines(ctx, 0))
-      return -1;
+    if (skip_newlines(ctx, 0)) return -1;
 
     /* on comma, continue to scan for next element */
     if (ctx->tok.tok == COMMA) {
-      if (eat_token(ctx, COMMA, 0, FLINE))
-        return -1;
+      if (eat_token(ctx, COMMA, 0, FLINE)) return -1;
       continue;
     }
     break;
   }
 
-  if (eat_token(ctx, RBRACKET, 1, FLINE))
-    return -1;
+  if (eat_token(ctx, RBRACKET, 1, FLINE)) return -1;
   return 0;
 }
 
@@ -1110,8 +1053,7 @@ static int parse_keyval(context_t *ctx, toml_table_t *tab) {
   }
 
   token_t key = ctx->tok;
-  if (eat_token(ctx, STRING, 1, FLINE))
-    return -1;
+  if (eat_token(ctx, STRING, 1, FLINE)) return -1;
 
   if (ctx->tok.tok == DOT) {
     /* handle inline dotted key.
@@ -1122,21 +1064,17 @@ static int parse_keyval(context_t *ctx, toml_table_t *tab) {
     toml_table_t *subtab = 0;
     {
       char *subtabstr = normalize_key(ctx, key);
-      if (!subtabstr)
-        return -1;
+      if (!subtabstr) return -1;
 
       subtab = toml_table_in(tab, subtabstr);
       xfree(subtabstr);
     }
     if (!subtab) {
       subtab = create_keytable_in_table(ctx, tab, key);
-      if (!subtab)
-        return -1;
+      if (!subtab) return -1;
     }
-    if (next_token(ctx, 1))
-      return -1;
-    if (parse_keyval(ctx, subtab))
-      return -1;
+    if (next_token(ctx, 1)) return -1;
+    if (parse_keyval(ctx, subtab)) return -1;
     return 0;
   }
 
@@ -1144,46 +1082,39 @@ static int parse_keyval(context_t *ctx, toml_table_t *tab) {
     return e_syntax(ctx, ctx->tok.lineno, "missing =");
   }
 
-  if (next_token(ctx, 0))
-    return -1;
+  if (next_token(ctx, 0)) return -1;
 
   switch (ctx->tok.tok) {
-  case STRING: { /* key = "value" */
-    toml_keyval_t *keyval = create_keyval_in_table(ctx, tab, key);
-    if (!keyval)
-      return -1;
-    token_t val = ctx->tok;
+    case STRING: { /* key = "value" */
+      toml_keyval_t *keyval = create_keyval_in_table(ctx, tab, key);
+      if (!keyval) return -1;
+      token_t val = ctx->tok;
 
-    assert(keyval->val == 0);
-    if (!(keyval->val = STRNDUP(val.ptr, val.len)))
-      return e_outofmemory(ctx, FLINE);
+      assert(keyval->val == 0);
+      if (!(keyval->val = STRNDUP(val.ptr, val.len)))
+        return e_outofmemory(ctx, FLINE);
 
-    if (next_token(ctx, 1))
-      return -1;
+      if (next_token(ctx, 1)) return -1;
 
-    return 0;
-  }
+      return 0;
+    }
 
-  case LBRACKET: { /* key = [ array ] */
-    toml_array_t *arr = create_keyarray_in_table(ctx, tab, key, 0);
-    if (!arr)
-      return -1;
-    if (parse_array(ctx, arr))
-      return -1;
-    return 0;
-  }
+    case LBRACKET: { /* key = [ array ] */
+      toml_array_t *arr = create_keyarray_in_table(ctx, tab, key, 0);
+      if (!arr) return -1;
+      if (parse_array(ctx, arr)) return -1;
+      return 0;
+    }
 
-  case LBRACE: { /* key = { table } */
-    toml_table_t *nxttab = create_keytable_in_table(ctx, tab, key);
-    if (!nxttab)
-      return -1;
-    if (parse_inline_table(ctx, nxttab))
-      return -1;
-    return 0;
-  }
+    case LBRACE: { /* key = { table } */
+      toml_table_t *nxttab = create_keytable_in_table(ctx, tab, key);
+      if (!nxttab) return -1;
+      if (parse_inline_table(ctx, nxttab)) return -1;
+      return 0;
+    }
 
-  default:
-    return e_syntax(ctx, ctx->tok.lineno, "syntax error");
+    default:
+      return e_syntax(ctx, ctx->tok.lineno, "syntax error");
   }
   return 0;
 }
@@ -1219,27 +1150,21 @@ static int fill_tabpath(context_t *ctx) {
       return e_syntax(ctx, lineno, "invalid or missing key");
 
     char *key = normalize_key(ctx, ctx->tok);
-    if (!key)
-      return -1;
+    if (!key) return -1;
     ctx->tpath.tok[ctx->tpath.top] = ctx->tok;
     ctx->tpath.key[ctx->tpath.top] = key;
     ctx->tpath.top++;
 
-    if (next_token(ctx, 1))
-      return -1;
+    if (next_token(ctx, 1)) return -1;
 
-    if (ctx->tok.tok == RBRACKET)
-      break;
+    if (ctx->tok.tok == RBRACKET) break;
 
-    if (ctx->tok.tok != DOT)
-      return e_syntax(ctx, lineno, "invalid key");
+    if (ctx->tok.tok != DOT) return e_syntax(ctx, lineno, "invalid key");
 
-    if (next_token(ctx, 1))
-      return -1;
+    if (next_token(ctx, 1)) return -1;
   }
 
-  if (ctx->tpath.top <= 0)
-    return e_syntax(ctx, lineno, "empty table selector");
+  if (ctx->tpath.top <= 0) return e_syntax(ctx, lineno, "empty table selector");
 
   return 0;
 }
@@ -1258,44 +1183,40 @@ static int walk_tabpath(context_t *ctx) {
     toml_array_t *nextarr = 0;
     toml_table_t *nexttab = 0;
     switch (check_key(curtab, key, &nextval, &nextarr, &nexttab)) {
-    case 't':
-      /* found a table. nexttab is where we will go next. */
-      break;
+      case 't':
+        /* found a table. nexttab is where we will go next. */
+        break;
 
-    case 'a':
-      /* found an array. nexttab is the last table in the array. */
-      if (nextarr->kind != 't')
-        return e_internal(ctx, FLINE);
+      case 'a':
+        /* found an array. nexttab is the last table in the array. */
+        if (nextarr->kind != 't') return e_internal(ctx, FLINE);
 
-      if (nextarr->nitem == 0)
-        return e_internal(ctx, FLINE);
+        if (nextarr->nitem == 0) return e_internal(ctx, FLINE);
 
-      nexttab = nextarr->item[nextarr->nitem - 1].tab;
-      break;
+        nexttab = nextarr->item[nextarr->nitem - 1].tab;
+        break;
 
-    case 'v':
-      return e_keyexists(ctx, ctx->tpath.tok[i].lineno);
+      case 'v':
+        return e_keyexists(ctx, ctx->tpath.tok[i].lineno);
 
-    default: { /* Not found. Let's create an implicit table. */
-      int n = curtab->ntab;
-      toml_table_t **base =
-          (toml_table_t **)expand_ptrarr((void **)curtab->tab, n);
-      if (0 == base)
-        return e_outofmemory(ctx, FLINE);
+      default: { /* Not found. Let's create an implicit table. */
+        int n = curtab->ntab;
+        toml_table_t **base =
+            (toml_table_t **)expand_ptrarr((void **)curtab->tab, n);
+        if (0 == base) return e_outofmemory(ctx, FLINE);
 
-      curtab->tab = base;
+        curtab->tab = base;
 
-      if (0 == (base[n] = (toml_table_t *)CALLOC(1, sizeof(*base[n]))))
-        return e_outofmemory(ctx, FLINE);
+        if (0 == (base[n] = (toml_table_t *)CALLOC(1, sizeof(*base[n]))))
+          return e_outofmemory(ctx, FLINE);
 
-      if (0 == (base[n]->key = STRDUP(key)))
-        return e_outofmemory(ctx, FLINE);
+        if (0 == (base[n]->key = STRDUP(key))) return e_outofmemory(ctx, FLINE);
 
-      nexttab = curtab->tab[curtab->ntab++];
+        nexttab = curtab->tab[curtab->ntab++];
 
-      /* tabs created by walk_tabpath are considered implicit */
-      nexttab->implicit = true;
-    } break;
+        /* tabs created by walk_tabpath are considered implicit */
+        nexttab->implicit = true;
+      } break;
     }
 
     /* switch to next tab */
@@ -1318,16 +1239,13 @@ static int parse_select(context_t *ctx) {
      and '[ [' would be taken as '[[', which is wrong. */
 
   /* eat [ or [[ */
-  if (eat_token(ctx, LBRACKET, 1, FLINE))
-    return -1;
+  if (eat_token(ctx, LBRACKET, 1, FLINE)) return -1;
   if (llb) {
     assert(ctx->tok.tok == LBRACKET);
-    if (eat_token(ctx, LBRACKET, 1, FLINE))
-      return -1;
+    if (eat_token(ctx, LBRACKET, 1, FLINE)) return -1;
   }
 
-  if (fill_tabpath(ctx))
-    return -1;
+  if (fill_tabpath(ctx)) return -1;
 
   /* For [x.y.z] or [[x.y.z]], remove z from tpath.
    */
@@ -1336,42 +1254,35 @@ static int parse_select(context_t *ctx) {
   ctx->tpath.top--;
 
   /* set up ctx->curtab */
-  if (walk_tabpath(ctx))
-    return -1;
+  if (walk_tabpath(ctx)) return -1;
 
   if (!llb) {
     /* [x.y.z] -> create z = {} in x.y */
     toml_table_t *curtab = create_keytable_in_table(ctx, ctx->curtab, z);
-    if (!curtab)
-      return -1;
+    if (!curtab) return -1;
     ctx->curtab = curtab;
   } else {
     /* [[x.y.z]] -> create z = [] in x.y */
     toml_array_t *arr = 0;
     {
       char *zstr = normalize_key(ctx, z);
-      if (!zstr)
-        return -1;
+      if (!zstr) return -1;
       arr = toml_array_in(ctx->curtab, zstr);
       xfree(zstr);
     }
     if (!arr) {
       arr = create_keyarray_in_table(ctx, ctx->curtab, z, 't');
-      if (!arr)
-        return -1;
+      if (!arr) return -1;
     }
-    if (arr->kind != 't')
-      return e_syntax(ctx, z.lineno, "array mismatch");
+    if (arr->kind != 't') return e_syntax(ctx, z.lineno, "array mismatch");
 
     /* add to z[] */
     toml_table_t *dest;
     {
       toml_table_t *t = create_table_in_array(ctx, arr);
-      if (!t)
-        return -1;
+      if (!t) return -1;
 
-      if (0 == (t->key = STRDUP("__anon__")))
-        return e_outofmemory(ctx, FLINE);
+      if (0 == (t->key = STRDUP("__anon__"))) return e_outofmemory(ctx, FLINE);
 
       dest = t;
     }
@@ -1386,12 +1297,10 @@ static int parse_select(context_t *ctx) {
     if (!(ctx->tok.ptr + 1 < ctx->stop && ctx->tok.ptr[1] == ']')) {
       return e_syntax(ctx, ctx->tok.lineno, "expects ]]");
     }
-    if (eat_token(ctx, RBRACKET, 1, FLINE))
-      return -1;
+    if (eat_token(ctx, RBRACKET, 1, FLINE)) return -1;
   }
 
-  if (eat_token(ctx, RBRACKET, 1, FLINE))
-    return -1;
+  if (eat_token(ctx, RBRACKET, 1, FLINE)) return -1;
 
   if (ctx->tok.tok != NEWLINE)
     return e_syntax(ctx, ctx->tok.lineno, "extra chars after ] or ]]");
@@ -1403,10 +1312,8 @@ toml_table_t *toml_parse(char *conf, char *errbuf, int errbufsz) {
   context_t ctx;
 
   // clear errbuf
-  if (errbufsz <= 0)
-    errbufsz = 0;
-  if (errbufsz > 0)
-    errbuf[0] = 0;
+  if (errbufsz <= 0) errbufsz = 0;
+  if (errbufsz > 0) errbuf[0] = 0;
 
   // init context
   memset(&ctx, 0, sizeof(ctx));
@@ -1434,45 +1341,38 @@ toml_table_t *toml_parse(char *conf, char *errbuf, int errbufsz) {
   /* Scan forward until EOF */
   for (token_t tok = ctx.tok; !tok.eof; tok = ctx.tok) {
     switch (tok.tok) {
+      case NEWLINE:
+        if (next_token(&ctx, 1)) goto fail;
+        break;
 
-    case NEWLINE:
-      if (next_token(&ctx, 1))
+      case STRING:
+        if (parse_keyval(&ctx, ctx.curtab)) goto fail;
+
+        if (ctx.tok.tok != NEWLINE) {
+          e_syntax(&ctx, ctx.tok.lineno, "extra chars after value");
+          goto fail;
+        }
+
+        if (eat_token(&ctx, NEWLINE, 1, FLINE)) goto fail;
+        break;
+
+      case LBRACKET: /* [ x.y.z ] or [[ x.y.z ]] */
+        if (parse_select(&ctx)) goto fail;
+        break;
+
+      default:
+        e_syntax(&ctx, tok.lineno, "syntax error");
         goto fail;
-      break;
-
-    case STRING:
-      if (parse_keyval(&ctx, ctx.curtab))
-        goto fail;
-
-      if (ctx.tok.tok != NEWLINE) {
-        e_syntax(&ctx, ctx.tok.lineno, "extra chars after value");
-        goto fail;
-      }
-
-      if (eat_token(&ctx, NEWLINE, 1, FLINE))
-        goto fail;
-      break;
-
-    case LBRACKET: /* [ x.y.z ] or [[ x.y.z ]] */
-      if (parse_select(&ctx))
-        goto fail;
-      break;
-
-    default:
-      e_syntax(&ctx, tok.lineno, "syntax error");
-      goto fail;
     }
   }
 
   /* success */
-  for (int i = 0; i < ctx.tpath.top; i++)
-    xfree(ctx.tpath.key[i]);
+  for (int i = 0; i < ctx.tpath.top; i++) xfree(ctx.tpath.key[i]);
   return ctx.root;
 
 fail:
   // Something bad has happened. Free resources and return error.
-  for (int i = 0; i < ctx.tpath.top; i++)
-    xfree(ctx.tpath.key[i]);
+  for (int i = 0; i < ctx.tpath.top; i++) xfree(ctx.tpath.key[i]);
   toml_free(ctx.root);
   return 0;
 }
@@ -1484,7 +1384,6 @@ toml_table_t *toml_parse_file(FILE *fp, char *errbuf, int errbufsz) {
 
   /* read from fp into buf */
   while (!feof(fp)) {
-
     if (off == bufsz) {
       int xsz = bufsz + 1000;
       char *x = expand(buf, bufsz, xsz);
@@ -1529,8 +1428,7 @@ toml_table_t *toml_parse_file(FILE *fp, char *errbuf, int errbufsz) {
 }
 
 static void xfree_kval(toml_keyval_t *p) {
-  if (!p)
-    return;
+  if (!p) return;
   xfree(p->key);
   xfree(p->val);
   xfree(p);
@@ -1539,8 +1437,7 @@ static void xfree_kval(toml_keyval_t *p) {
 static void xfree_tab(toml_table_t *p);
 
 static void xfree_arr(toml_array_t *p) {
-  if (!p)
-    return;
+  if (!p) return;
 
   xfree(p->key);
   const int n = p->nitem;
@@ -1560,21 +1457,17 @@ static void xfree_arr(toml_array_t *p) {
 static void xfree_tab(toml_table_t *p) {
   int i;
 
-  if (!p)
-    return;
+  if (!p) return;
 
   xfree(p->key);
 
-  for (i = 0; i < p->nkval; i++)
-    xfree_kval(p->kval[i]);
+  for (i = 0; i < p->nkval; i++) xfree_kval(p->kval[i]);
   xfree(p->kval);
 
-  for (i = 0; i < p->narr; i++)
-    xfree_arr(p->arr[i]);
+  for (i = 0; i < p->narr; i++) xfree_arr(p->arr[i]);
   xfree(p->arr);
 
-  for (i = 0; i < p->ntab; i++)
-    xfree_tab(p->tab[i]);
+  for (i = 0; i < p->ntab; i++) xfree_tab(p->tab[i]);
   xfree(p->tab);
 
   xfree(p);
@@ -1612,12 +1505,9 @@ static int scan_date(const char *p, int *YY, int *MM, int *DD) {
   year = scan_digits(p, 4);
   month = (year >= 0 && p[4] == '-') ? scan_digits(p + 5, 2) : -1;
   day = (month >= 0 && p[7] == '-') ? scan_digits(p + 8, 2) : -1;
-  if (YY)
-    *YY = year;
-  if (MM)
-    *MM = month;
-  if (DD)
-    *DD = day;
+  if (YY) *YY = year;
+  if (MM) *MM = month;
+  if (DD) *DD = day;
   return (year >= 0 && month >= 0 && day >= 0) ? 0 : -1;
 }
 
@@ -1626,12 +1516,9 @@ static int scan_time(const char *p, int *hh, int *mm, int *ss) {
   hour = scan_digits(p, 2);
   minute = (hour >= 0 && p[2] == ':') ? scan_digits(p + 3, 2) : -1;
   second = (minute >= 0 && p[5] == ':') ? scan_digits(p + 6, 2) : -1;
-  if (hh)
-    *hh = hour;
-  if (mm)
-    *mm = minute;
-  if (ss)
-    *ss = second;
+  if (hh) *hh = hour;
+  if (mm) *mm = minute;
+  if (ss) *ss = second;
   return (hour >= 0 && minute >= 0 && second >= 0) ? 0 : -1;
 }
 
@@ -1645,8 +1532,7 @@ static int scan_string(context_t *ctx, char *p, int lineno, int dotisspecial) {
       if (0 == q) {
         return e_syntax(ctx, lineno, "unterminated triple-s-quote");
       }
-      while (q[3] == '\'')
-        q++;
+      while (q[3] == '\'') q++;
       break;
     }
 
@@ -1666,8 +1552,7 @@ static int scan_string(context_t *ctx, char *p, int lineno, int dotisspecial) {
         q++;
         continue;
       }
-      while (q[3] == '\"')
-        q++;
+      while (q[3] == '\"') q++;
       break;
     }
 
@@ -1678,8 +1563,7 @@ static int scan_string(context_t *ctx, char *p, int lineno, int dotisspecial) {
     for (p += 3; p < q; p++) {
       if (escape) {
         escape = 0;
-        if (strchr("btnfr\"\\", *p))
-          continue;
+        if (strchr("btnfr\"\\", *p)) continue;
         if (*p == 'u') {
           hexreq = 4;
           continue;
@@ -1694,8 +1578,7 @@ static int scan_string(context_t *ctx, char *p, int lineno, int dotisspecial) {
       }
       if (hexreq) {
         hexreq--;
-        if (strchr("0123456789ABCDEF", *p))
-          continue;
+        if (strchr("0123456789ABCDEF", *p)) continue;
         return e_syntax(ctx, lineno, "expect hex char");
       }
       if (*p == '\\') {
@@ -1703,18 +1586,15 @@ static int scan_string(context_t *ctx, char *p, int lineno, int dotisspecial) {
         continue;
       }
     }
-    if (escape)
-      return e_syntax(ctx, lineno, "expect an escape char");
-    if (hexreq)
-      return e_syntax(ctx, lineno, "expected more hex char");
+    if (escape) return e_syntax(ctx, lineno, "expect an escape char");
+    if (hexreq) return e_syntax(ctx, lineno, "expected more hex char");
 
     set_token(ctx, STRING, lineno, orig, q + 3 - orig);
     return 0;
   }
 
   if ('\'' == *p) {
-    for (p++; *p && *p != '\n' && *p != '\''; p++)
-      ;
+    for (p++; *p && *p != '\n' && *p != '\''; p++);
     if (*p != '\'') {
       return e_syntax(ctx, lineno, "unterminated s-quote");
     }
@@ -1729,8 +1609,7 @@ static int scan_string(context_t *ctx, char *p, int lineno, int dotisspecial) {
     for (p++; *p; p++) {
       if (escape) {
         escape = 0;
-        if (strchr("btnfr\"\\", *p))
-          continue;
+        if (strchr("btnfr\"\\", *p)) continue;
         if (*p == 'u') {
           hexreq = 4;
           continue;
@@ -1743,8 +1622,7 @@ static int scan_string(context_t *ctx, char *p, int lineno, int dotisspecial) {
       }
       if (hexreq) {
         hexreq--;
-        if (strchr("0123456789ABCDEF", *p))
-          continue;
+        if (strchr("0123456789ABCDEF", *p)) continue;
         return e_syntax(ctx, lineno, "expect hex char");
       }
       if (*p == '\\') {
@@ -1757,10 +1635,8 @@ static int scan_string(context_t *ctx, char *p, int lineno, int dotisspecial) {
         }
         continue;
       }
-      if (*p == '\n')
-        break;
-      if (*p == '"')
-        break;
+      if (*p == '\n') break;
+      if (*p == '"') break;
     }
     if (*p != '"') {
       return e_syntax(ctx, lineno, "unterminated quote");
@@ -1775,8 +1651,7 @@ static int scan_string(context_t *ctx, char *p, int lineno, int dotisspecial) {
     // forward thru the timestamp
     p += strspn(p, "0123456789.:+-Tt Zz");
     // squeeze out any spaces at end of string
-    for (; p[-1] == ' '; p--)
-      ;
+    for (; p[-1] == ' '; p--);
     // tokenize
     set_token(ctx, STRING, lineno, orig, p - orig);
     return 0;
@@ -1785,14 +1660,10 @@ static int scan_string(context_t *ctx, char *p, int lineno, int dotisspecial) {
   /* literals */
   for (; *p && *p != '\n'; p++) {
     int ch = *p;
-    if (ch == '.' && dotisspecial)
-      break;
-    if ('A' <= ch && ch <= 'Z')
-      continue;
-    if ('a' <= ch && ch <= 'z')
-      continue;
-    if (strchr("0123456789+-_.", ch))
-      continue;
+    if (ch == '.' && dotisspecial) break;
+    if ('A' <= ch && ch <= 'Z') continue;
+    if ('a' <= ch && ch <= 'z') continue;
+    if (strchr("0123456789+-_.", ch)) continue;
     break;
   }
 
@@ -1807,16 +1678,14 @@ static int next_token(context_t *ctx, int dotisspecial) {
 
   /* eat this tok */
   for (i = 0; i < ctx->tok.len; i++) {
-    if (*p++ == '\n')
-      lineno++;
+    if (*p++ == '\n') lineno++;
   }
 
   /* make next tok */
   while (p < ctx->stop) {
     /* skip comment. stop just before the \n. */
     if (*p == '#') {
-      for (p++; p < ctx->stop && *p != '\n'; p++)
-        ;
+      for (p++; p < ctx->stop && *p != '\n'; p++);
       continue;
     }
 
@@ -1826,33 +1695,33 @@ static int next_token(context_t *ctx, int dotisspecial) {
     }
 
     switch (*p) {
-    case ',':
-      set_token(ctx, COMMA, lineno, p, 1);
-      return 0;
-    case '=':
-      set_token(ctx, EQUAL, lineno, p, 1);
-      return 0;
-    case '{':
-      set_token(ctx, LBRACE, lineno, p, 1);
-      return 0;
-    case '}':
-      set_token(ctx, RBRACE, lineno, p, 1);
-      return 0;
-    case '[':
-      set_token(ctx, LBRACKET, lineno, p, 1);
-      return 0;
-    case ']':
-      set_token(ctx, RBRACKET, lineno, p, 1);
-      return 0;
-    case '\n':
-      set_token(ctx, NEWLINE, lineno, p, 1);
-      return 0;
-    case '\r':
-    case ' ':
-    case '\t':
-      /* ignore white spaces */
-      p++;
-      continue;
+      case ',':
+        set_token(ctx, COMMA, lineno, p, 1);
+        return 0;
+      case '=':
+        set_token(ctx, EQUAL, lineno, p, 1);
+        return 0;
+      case '{':
+        set_token(ctx, LBRACE, lineno, p, 1);
+        return 0;
+      case '}':
+        set_token(ctx, RBRACE, lineno, p, 1);
+        return 0;
+      case '[':
+        set_token(ctx, LBRACKET, lineno, p, 1);
+        return 0;
+      case ']':
+        set_token(ctx, RBRACKET, lineno, p, 1);
+        return 0;
+      case '\n':
+        set_token(ctx, NEWLINE, lineno, p, 1);
+        return 0;
+      case '\r':
+      case ' ':
+      case '\t':
+        /* ignore white spaces */
+        p++;
+        continue;
     }
 
     return scan_string(ctx, p, lineno, dotisspecial);
@@ -1863,16 +1732,13 @@ static int next_token(context_t *ctx, int dotisspecial) {
 }
 
 const char *toml_key_in(const toml_table_t *tab, int keyidx) {
-  if (keyidx < tab->nkval)
-    return tab->kval[keyidx]->key;
+  if (keyidx < tab->nkval) return tab->kval[keyidx]->key;
 
   keyidx -= tab->nkval;
-  if (keyidx < tab->narr)
-    return tab->arr[keyidx]->key;
+  if (keyidx < tab->narr) return tab->arr[keyidx]->key;
 
   keyidx -= tab->narr;
-  if (keyidx < tab->ntab)
-    return tab->tab[keyidx]->key;
+  if (keyidx < tab->ntab) return tab->tab[keyidx]->key;
 
   return 0;
 }
@@ -1880,16 +1746,13 @@ const char *toml_key_in(const toml_table_t *tab, int keyidx) {
 int toml_key_exists(const toml_table_t *tab, const char *key) {
   int i;
   for (i = 0; i < tab->nkval; i++) {
-    if (0 == strcmp(key, tab->kval[i]->key))
-      return 1;
+    if (0 == strcmp(key, tab->kval[i]->key)) return 1;
   }
   for (i = 0; i < tab->narr; i++) {
-    if (0 == strcmp(key, tab->arr[i]->key))
-      return 1;
+    if (0 == strcmp(key, tab->arr[i]->key)) return 1;
   }
   for (i = 0; i < tab->ntab; i++) {
-    if (0 == strcmp(key, tab->tab[i]->key))
-      return 1;
+    if (0 == strcmp(key, tab->tab[i]->key)) return 1;
   }
   return 0;
 }
@@ -1897,8 +1760,7 @@ int toml_key_exists(const toml_table_t *tab, const char *key) {
 toml_raw_t toml_raw_in(const toml_table_t *tab, const char *key) {
   int i;
   for (i = 0; i < tab->nkval; i++) {
-    if (0 == strcmp(key, tab->kval[i]->key))
-      return tab->kval[i]->val;
+    if (0 == strcmp(key, tab->kval[i]->key)) return tab->kval[i]->val;
   }
   return 0;
 }
@@ -1906,8 +1768,7 @@ toml_raw_t toml_raw_in(const toml_table_t *tab, const char *key) {
 toml_array_t *toml_array_in(const toml_table_t *tab, const char *key) {
   int i;
   for (i = 0; i < tab->narr; i++) {
-    if (0 == strcmp(key, tab->arr[i]->key))
-      return tab->arr[i];
+    if (0 == strcmp(key, tab->arr[i]->key)) return tab->arr[i];
   }
   return 0;
 }
@@ -1915,8 +1776,7 @@ toml_array_t *toml_array_in(const toml_table_t *tab, const char *key) {
 toml_table_t *toml_table_in(const toml_table_t *tab, const char *key) {
   int i;
   for (i = 0; i < tab->ntab; i++) {
-    if (0 == strcmp(key, tab->tab[i]->key))
-      return tab->tab[i];
+    if (0 == strcmp(key, tab->tab[i]->key)) return tab->tab[i];
   }
   return 0;
 }
@@ -1928,11 +1788,9 @@ toml_raw_t toml_raw_at(const toml_array_t *arr, int idx) {
 char toml_array_kind(const toml_array_t *arr) { return arr->kind; }
 
 char toml_array_type(const toml_array_t *arr) {
-  if (arr->kind != 'v')
-    return 0;
+  if (arr->kind != 'v') return 0;
 
-  if (arr->nitem == 0)
-    return 0;
+  if (arr->nitem == 0) return 0;
 
   return arr->type;
 }
@@ -1964,8 +1822,7 @@ toml_table_t *toml_table_at(const toml_array_t *arr, int idx) {
 static int parse_millisec(const char *p, const char **endp);
 
 int toml_rtots(toml_raw_t src_, toml_timestamp_t *ret) {
-  if (!src_)
-    return -1;
+  if (!src_) return -1;
 
   const char *p = src_;
   int must_parse_time = 0;
@@ -1989,8 +1846,7 @@ int toml_rtots(toml_raw_t src_, toml_timestamp_t *ret) {
     p += 10;
     if (*p) {
       // parse the T or space separator
-      if (*p != 'T' && *p != 't' && *p != ' ')
-        return -1;
+      if (*p != 'T' && *p != 't' && *p != ' ') return -1;
       must_parse_time = 1;
       p++;
     }
@@ -2024,16 +1880,14 @@ int toml_rtots(toml_raw_t src_, toml_timestamp_t *ret) {
       } else if (*p == '+' || *p == '-') {
         *z++ = *p++;
 
-        if (!(isdigit(p[0]) && isdigit(p[1])))
-          return -1;
+        if (!(isdigit(p[0]) && isdigit(p[1]))) return -1;
         *z++ = *p++;
         *z++ = *p++;
 
         if (*p == ':') {
           *z++ = *p++;
 
-          if (!(isdigit(p[0]) && isdigit(p[1])))
-            return -1;
+          if (!(isdigit(p[0]) && isdigit(p[1]))) return -1;
           *z++ = *p++;
           *z++ = *p++;
         }
@@ -2042,19 +1896,16 @@ int toml_rtots(toml_raw_t src_, toml_timestamp_t *ret) {
       }
     }
   }
-  if (*p != 0)
-    return -1;
+  if (*p != 0) return -1;
 
-  if (must_parse_time && !ret->hour)
-    return -1;
+  if (must_parse_time && !ret->hour) return -1;
 
   return 0;
 }
 
 /* Raw to boolean */
 int toml_rtob(toml_raw_t src, int *ret_) {
-  if (!src)
-    return -1;
+  if (!src) return -1;
   int dummy;
   int *ret = ret_ ? ret_ : &dummy;
 
@@ -2071,8 +1922,7 @@ int toml_rtob(toml_raw_t src, int *ret_) {
 
 /* Raw to integer */
 int toml_rtoi(toml_raw_t src, int64_t *ret_) {
-  if (!src)
-    return -1;
+  if (!src) return -1;
 
   char buf[100];
   char *p = buf;
@@ -2083,34 +1933,31 @@ int toml_rtoi(toml_raw_t src, int64_t *ret_) {
   int64_t *ret = ret_ ? ret_ : &dummy;
 
   /* allow +/- */
-  if (s[0] == '+' || s[0] == '-')
-    *p++ = *s++;
+  if (s[0] == '+' || s[0] == '-') *p++ = *s++;
 
   /* disallow +_100 */
-  if (s[0] == '_')
-    return -1;
+  if (s[0] == '_') return -1;
 
   /* if 0* ... */
   if ('0' == s[0]) {
     switch (s[1]) {
-    case 'x':
-      base = 16;
-      s += 2;
-      break;
-    case 'o':
-      base = 8;
-      s += 2;
-      break;
-    case 'b':
-      base = 2;
-      s += 2;
-      break;
-    case '\0':
-      return *ret = 0, 0;
-    default:
-      /* ensure no other digits after it */
-      if (s[1])
-        return -1;
+      case 'x':
+        base = 16;
+        s += 2;
+        break;
+      case 'o':
+        base = 8;
+        s += 2;
+        break;
+      case 'b':
+        base = 2;
+        s += 2;
+        break;
+      case '\0':
+        return *ret = 0, 0;
+      default:
+        /* ensure no other digits after it */
+        if (s[1]) return -1;
     }
   }
 
@@ -2119,19 +1966,16 @@ int toml_rtoi(toml_raw_t src, int64_t *ret_) {
     int ch = *s++;
     if (ch == '_') {
       // disallow '__'
-      if (s[0] == '_')
-        return -1;
+      if (s[0] == '_') return -1;
       // numbers cannot end with '_'
-      if (s[0] == '\0')
-        return -1;
+      if (s[0] == '\0') return -1;
       continue; /* skip _ */
     }
     *p++ = ch;
   }
 
   // if not at end-of-string or we ran out of buffer ...
-  if (*s || p == q)
-    return -1;
+  if (*s || p == q) return -1;
 
   /* cap with NUL */
   *p = 0;
@@ -2144,8 +1988,7 @@ int toml_rtoi(toml_raw_t src, int64_t *ret_) {
 }
 
 int toml_rtod_ex(toml_raw_t src, double *ret_, char *buf, int buflen) {
-  if (!src)
-    return -1;
+  if (!src) return -1;
 
   char *p = buf;
   char *q = p + buflen;
@@ -2154,43 +1997,36 @@ int toml_rtod_ex(toml_raw_t src, double *ret_, char *buf, int buflen) {
   double *ret = ret_ ? ret_ : &dummy;
 
   /* allow +/- */
-  if (s[0] == '+' || s[0] == '-')
-    *p++ = *s++;
+  if (s[0] == '+' || s[0] == '-') *p++ = *s++;
 
   /* disallow +_1.00 */
-  if (s[0] == '_')
-    return -1;
+  if (s[0] == '_') return -1;
 
   /* decimal point, if used, must be surrounded by at least one digit on each
    * side */
   {
     char *dot = strchr(s, '.');
     if (dot) {
-      if (dot == s || !isdigit(dot[-1]) || !isdigit(dot[1]))
-        return -1;
+      if (dot == s || !isdigit(dot[-1]) || !isdigit(dot[1])) return -1;
     }
   }
 
   /* zero must be followed by . or 'e', or NUL */
-  if (s[0] == '0' && s[1] && !strchr("eE.", s[1]))
-    return -1;
+  if (s[0] == '0' && s[1] && !strchr("eE.", s[1])) return -1;
 
   /* just strip underscores and pass to strtod */
   while (*s && p < q) {
     int ch = *s++;
     if (ch == '_') {
       // disallow '__'
-      if (s[0] == '_')
-        return -1;
+      if (s[0] == '_') return -1;
       // disallow last char '_'
-      if (s[0] == 0)
-        return -1;
+      if (s[0] == 0) return -1;
       continue; /* skip _ */
     }
     *p++ = ch;
   }
-  if (*s || p == q)
-    return -1; /* reached end of string or buffer is full? */
+  if (*s || p == q) return -1; /* reached end of string or buffer is full? */
 
   /* cap with NUL */
   *p = 0;
@@ -2213,8 +2049,7 @@ int toml_rtos(toml_raw_t src, char **ret) {
   const char *sq;
 
   *ret = 0;
-  if (!src)
-    return -1;
+  if (!src) return -1;
 
   // for strings, first char must be a s-quote or d-quote
   int qchar = src[0];
@@ -2225,9 +2060,9 @@ int toml_rtos(toml_raw_t src, char **ret) {
 
   // triple quotes?
   if (qchar == src[1] && qchar == src[2]) {
-    multiline = 1;         // triple-quote implies multiline
-    sp = src + 3;          // first char after quote
-    sq = src + srclen - 3; // first char of ending quote
+    multiline = 1;          // triple-quote implies multiline
+    sp = src + 3;           // first char after quote
+    sq = src + srclen - 3;  // first char of ending quote
 
     if (!(sp <= sq && sq[0] == qchar && sq[1] == qchar && sq[2] == qchar)) {
       // last 3 chars in src must be qchar
@@ -2241,8 +2076,8 @@ int toml_rtos(toml_raw_t src, char **ret) {
       sp += 2;
 
   } else {
-    sp = src + 1;          // first char after quote
-    sq = src + srclen - 1; // ending quote
+    sp = src + 1;           // first char after quote
+    sq = src + srclen - 1;  // ending quote
     if (!(sp <= sq && *sq == qchar)) {
       /* last char in src must be qchar */
       return -1;
@@ -2299,22 +2134,14 @@ toml_datum_t toml_timestamp_at(const toml_array_t *arr, int idx) {
     ret.ok = !!(ret.u.ts = MALLOC(sizeof(*ret.u.ts)));
     if (ret.ok) {
       *ret.u.ts = ts;
-      if (ret.u.ts->year)
-        ret.u.ts->year = &ret.u.ts->__buffer.year;
-      if (ret.u.ts->month)
-        ret.u.ts->month = &ret.u.ts->__buffer.month;
-      if (ret.u.ts->day)
-        ret.u.ts->day = &ret.u.ts->__buffer.day;
-      if (ret.u.ts->hour)
-        ret.u.ts->hour = &ret.u.ts->__buffer.hour;
-      if (ret.u.ts->minute)
-        ret.u.ts->minute = &ret.u.ts->__buffer.minute;
-      if (ret.u.ts->second)
-        ret.u.ts->second = &ret.u.ts->__buffer.second;
-      if (ret.u.ts->millisec)
-        ret.u.ts->millisec = &ret.u.ts->__buffer.millisec;
-      if (ret.u.ts->z)
-        ret.u.ts->z = ret.u.ts->__buffer.z;
+      if (ret.u.ts->year) ret.u.ts->year = &ret.u.ts->__buffer.year;
+      if (ret.u.ts->month) ret.u.ts->month = &ret.u.ts->__buffer.month;
+      if (ret.u.ts->day) ret.u.ts->day = &ret.u.ts->__buffer.day;
+      if (ret.u.ts->hour) ret.u.ts->hour = &ret.u.ts->__buffer.hour;
+      if (ret.u.ts->minute) ret.u.ts->minute = &ret.u.ts->__buffer.minute;
+      if (ret.u.ts->second) ret.u.ts->second = &ret.u.ts->__buffer.second;
+      if (ret.u.ts->millisec) ret.u.ts->millisec = &ret.u.ts->__buffer.millisec;
+      if (ret.u.ts->z) ret.u.ts->z = ret.u.ts->__buffer.z;
     }
   }
   return ret;
@@ -2360,22 +2187,14 @@ toml_datum_t toml_timestamp_in(const toml_table_t *arr, const char *key) {
     ret.ok = !!(ret.u.ts = MALLOC(sizeof(*ret.u.ts)));
     if (ret.ok) {
       *ret.u.ts = ts;
-      if (ret.u.ts->year)
-        ret.u.ts->year = &ret.u.ts->__buffer.year;
-      if (ret.u.ts->month)
-        ret.u.ts->month = &ret.u.ts->__buffer.month;
-      if (ret.u.ts->day)
-        ret.u.ts->day = &ret.u.ts->__buffer.day;
-      if (ret.u.ts->hour)
-        ret.u.ts->hour = &ret.u.ts->__buffer.hour;
-      if (ret.u.ts->minute)
-        ret.u.ts->minute = &ret.u.ts->__buffer.minute;
-      if (ret.u.ts->second)
-        ret.u.ts->second = &ret.u.ts->__buffer.second;
-      if (ret.u.ts->millisec)
-        ret.u.ts->millisec = &ret.u.ts->__buffer.millisec;
-      if (ret.u.ts->z)
-        ret.u.ts->z = ret.u.ts->__buffer.z;
+      if (ret.u.ts->year) ret.u.ts->year = &ret.u.ts->__buffer.year;
+      if (ret.u.ts->month) ret.u.ts->month = &ret.u.ts->__buffer.month;
+      if (ret.u.ts->day) ret.u.ts->day = &ret.u.ts->__buffer.day;
+      if (ret.u.ts->hour) ret.u.ts->hour = &ret.u.ts->__buffer.hour;
+      if (ret.u.ts->minute) ret.u.ts->minute = &ret.u.ts->__buffer.minute;
+      if (ret.u.ts->second) ret.u.ts->second = &ret.u.ts->__buffer.second;
+      if (ret.u.ts->millisec) ret.u.ts->millisec = &ret.u.ts->__buffer.millisec;
+      if (ret.u.ts->z) ret.u.ts->z = ret.u.ts->__buffer.z;
     }
   }
   return ret;

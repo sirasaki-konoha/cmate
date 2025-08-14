@@ -1,5 +1,6 @@
-#include "main/main.h"
 #include "main/init.h"
+
+#include "main/main.h"
 #include "utils/term_color.h"
 
 /**
@@ -62,8 +63,7 @@ int create_source_files(void) {
  * @return 0 on success, non-zero on failure
  */
 int create_template_not_exist(const char *dir, const char *filename,
-                                     const char *template,
-                                     int const template_len) {
+                              const char *template, int const template_len) {
   char *template_text = malloc(template_len + 1);
 
   if (template_text == NULL) {

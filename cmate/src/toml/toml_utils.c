@@ -1,27 +1,25 @@
-#include <stdlib.h>
-
 #include "toml/toml_utils.h"
+
+#include <stdlib.h>
 
 /**
  * Get a array of strings from a TOML array.
  * @param arr TOML array to extract strings from
  * @param out_count Pointer to store the number of strings found
- * @return An array of strings, NULL-terminated. Caller must free the array and its contents.
+ * @return An array of strings, NULL-terminated. Caller must free the array and
+ * its contents.
  */
 char **get_arrays(toml_array_t *arr, int *out_count) {
-  if (!arr)
-    return NULL;
+  if (!arr) return NULL;
 
   int n = toml_array_nelem(arr);
   char **arrays = malloc(sizeof(char *) * (n + 1));
-  if (!arrays)
-    return NULL;
+  if (!arrays) return NULL;
 
   int actual = 0;
   for (int i = 0; i < n; i++) {
     const char *raw = toml_raw_at(arr, i);
-    if (!raw)
-      continue;
+    if (!raw) continue;
 
     char *str;
     if (toml_rtos(raw, &str) == 0) {
@@ -30,17 +28,15 @@ char **get_arrays(toml_array_t *arr, int *out_count) {
   }
 
   arrays[actual] = NULL;
-  if (out_count)
-    *out_count = actual;
+  if (out_count) *out_count = actual;
 
   return arrays;
 }
 
-
 /**
  * Free an array of strings.
  * @param arr   Array of strings to free
- * @param count Number of strings in the array 
+ * @param count Number of strings in the array
  */
 void free_arrays(char **arr, int count) {
   if (!arr) return;

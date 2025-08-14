@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include "utils/utils.h"
 
 #ifdef _WIN32
@@ -73,7 +74,6 @@ int run_command(const char *cmd, char *const argv[]) {
 int run_command(const char *cmd, char *const argv[]) {
   pid_t pid = fork();
   if (pid == 0) {
-
     int devnull = open("/dev/null", O_WRONLY);
     if (devnull == -1) {
       perror("Failed to open /dev/null");

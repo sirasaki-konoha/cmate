@@ -1,10 +1,8 @@
-#include <stdio.h>
 #include <hello.h>
+#include <stdio.h>
 
-int main()
-{
-	printf("Hello, example!\n");
-	printf("This is cmate example\n");
-	return hello();
+int main() {
+  printf("Hello, example!\n");
+  printf("This is cmate example\n");
+  return hello();
 }
-

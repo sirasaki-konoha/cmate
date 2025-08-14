@@ -1,14 +1,15 @@
+#include "utils/utils.h"
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "tomlc99/toml.h"
 
 #include "file_io/file_io.h"
-#include "utils/term_color.h"
 #include "makefile/embed_mkfile.h"
 #include "toml/toml_utils.h"
-#include "utils/utils.h"
+#include "tomlc99/toml.h"
+#include "utils/term_color.h"
 
 char *format_string(const char *restrict __format, ...) {
   va_list args;
@@ -56,8 +57,7 @@ int init_project() {
  * @return Pointer to duplidcate string, NULL on error
  */
 char *safe_strdup(const char *s) {
-  if (!s)
-    return NULL;
+  if (!s) return NULL;
 
   char *dup = malloc(strlen(s) + 1);
   if (!dup) {
@@ -70,30 +70,32 @@ char *safe_strdup(const char *s) {
 }
 
 /**
- * Joins an array of strings into a single string, inserting the specified separator between each string.
+ * Joins an array of strings into a single string, inserting the specified
+ * separator between each string.
  *
  * @param strings    A NULL-terminated array of strings to be joined.
  * @param separator  The string to insert between each pair of strings.
- * @return           A newly allocated string containing the joined result, or NULL on allocation failure.
- *                   The caller is responsible for freeing the returned string.
+ * @return           A newly allocated string containing the joined result, or
+ * NULL on allocation failure. The caller is responsible for freeing the
+ * returned string.
  */
 char *join_strings(char **strings, const char *separator) {
-    unsigned long total_length = 0;
-    int i;
-    for (i = 0; strings[i] != NULL; i++) {
-        total_length += strlen(strings[i]);
+  unsigned long total_length = 0;
+  int i;
+  for (i = 0; strings[i] != NULL; i++) {
+    total_length += strlen(strings[i]);
+  }
+  total_length += strlen(separator) * (i - 1);
+
+  char *result = malloc(total_length + 1);
+  result[0] = '\0';
+
+  for (int i = 0; strings[i] != NULL; i++) {
+    strcat(result, strings[i]);
+    if (strings[i + 1] != NULL) {
+      strcat(result, separator);
     }
-    total_length += strlen(separator) * (i - 1);
+  }
 
-    char *result = malloc(total_length + 1);
-    result[0] = '\0';
-
-    for (int i = 0; strings[i] != NULL; i++) {
-        strcat(result, strings[i]);
-        if (strings[i + 1] != NULL) {
-            strcat(result, separator);
-        }
-    }
-
-    return result;
+  return result;
 }

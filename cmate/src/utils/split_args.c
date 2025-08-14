@@ -10,14 +10,11 @@ char **split_args(const char *input) {
 
   const char *p = input;
   while (*p) {
-    while (isspace((unsigned char)*p))
-      p++;
-    if (*p == '\0')
-      break;
+    while (isspace((unsigned char)*p)) p++;
+    if (*p == '\0') break;
 
     const char *start = p;
-    while (*p && !isspace((unsigned char)*p))
-      p++;
+    while (*p && !isspace((unsigned char)*p)) p++;
 
     size_t len = p - start;
     char *token = malloc(len + 1);

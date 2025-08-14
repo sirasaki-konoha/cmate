@@ -1,6 +1,7 @@
-#include "file_io/file_io.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "file_io/file_io.h"
 
 int create_and_write(const char *path, const char *write) {
   FILE *fp = fopen(path, "w+");
