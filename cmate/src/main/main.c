@@ -75,6 +75,7 @@ int main(int argc, char **argv) {
   cmate_arg_t init = {"i",  "init", NULL, "Generate a project.toml file",
                       NULL, 0};
   cmate_arg_t build = {"b", "build", NULL, "Build the project", NULL, 0};
+  cmate_arg_t clean = {"c", "clean", NULL, "Clean the project", NULL, 0};
 
   int exit_code = EXIT_SUCCESS;
   char *output_file = NULL;
@@ -87,6 +88,7 @@ int main(int argc, char **argv) {
   arrput(args, &version);
   arrput(args, &init);
   arrput(args, &build);
+  arrput(args, &clean);
   arrput(args, &run);
 
   nerrors = argparse_with_run_args(argc, argv, args);
@@ -123,17 +125,29 @@ int main(int argc, char **argv) {
       safe_strdup(output.count > 0 ? output.value : DEFAULT_OUTPUT_FILE);
   toml_file = safe_strdup(toml.count > 0 ? toml.value : DEFAULT_TOML_FILE);
 
+  if (run.count > 0) {
+    run_project_with_args(toml_file, run.value, run_args);
+    goto cleanup;
+  }
+
+	if (clean.count > 0) {
+		clean_project(toml_file);
+		if (build.count > 0) {
+			if (build_project(toml_file, 1) == 0){
+				if (run.count > 0) {
+					run_project_with_args(toml_file, run.value, run_args);
+				}
+			}
+		}
+		goto cleanup;
+	}
+
   if (build.count > 0) {
     if (build_project(toml_file, 1) == 0) {
       if (run.count > 0) {
         run_project_with_args(toml_file, run.value, run_args);
       }
     }
-    goto cleanup;
-  }
-
-  if (run.count > 0) {
-    run_project_with_args(toml_file, run.value, run_args);
     goto cleanup;
   }
 

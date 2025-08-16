@@ -63,7 +63,7 @@ int run_project_with_args(const char *toml_file, const char *exec_project,
   }
 
   if (found != 1) {
-    ERR("Project not found: %s", exec_project);
+    ERR("Project not found: %s\n", exec_project);
     ret = 1;
     free_toml_parsed(tml, count);
     goto free_and_exit;

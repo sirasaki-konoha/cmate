@@ -40,6 +40,7 @@
 #include "toml/toml_utils.h"
 #include "utils/utils.h"
 #include "windows/windows_support.h"
+#include "clean/clean.h"
 
 /* CMATE version settings etc. */
 
