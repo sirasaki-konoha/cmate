@@ -39,7 +39,7 @@ int run_project_with_args(const char *toml_file, const char *exec_project,
     goto free_and_exit;
   }
 
-  if (toml_dir == NULL) {
+  if (toml_dir == NULL || toml_full == NULL) {
     ERR("Cmate.toml not found\n");
     ret = 1;
     goto free_and_exit;

@@ -48,7 +48,7 @@ int build_project(const char *toml_file, int output) {
     return 1;
   }
 
-  if (toml_dir == NULL) {
+  if (toml_dir == NULL || toml_full_path == NULL) {
     ERR("Cmate.toml not found\n");
     free(toml_full_path);
     free(toml_dir);

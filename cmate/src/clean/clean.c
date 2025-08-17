@@ -33,7 +33,7 @@ int clean_project(const char* toml_file) {
     return 1;
 	}
 
-	if (toml_dir == NULL) {
+	if (toml_dir == NULL || toml_full_path == NULL) {
 		ERR("Cmate.toml not found\n");
 		free(toml_full_path);
 		free(toml_dir);
