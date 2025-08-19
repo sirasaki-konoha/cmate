@@ -28,6 +28,7 @@
 #include <utils/stb_ds.h>
 /* cmate */
 #include "build/build.h"
+#include "clean/clean.h"
 #include "cmate_arg_t.h"
 #include "file_io/file_io.h"
 #include "main/arg.h"
@@ -40,7 +41,6 @@
 #include "toml/toml_utils.h"
 #include "utils/utils.h"
 #include "windows/windows_support.h"
-#include "clean/clean.h"
 
 /* CMATE version settings etc. */
 

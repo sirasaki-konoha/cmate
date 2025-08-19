@@ -130,17 +130,17 @@ int main(int argc, char **argv) {
     goto cleanup;
   }
 
-	if (clean.count > 0) {
-		clean_project(toml_file);
-		if (build.count > 0) {
-			if (build_project(toml_file, 1) == 0){
-				if (run.count > 0) {
-					run_project_with_args(toml_file, run.value, run_args);
-				}
-			}
-		}
-		goto cleanup;
-	}
+  if (clean.count > 0) {
+    clean_project(toml_file);
+    if (build.count > 0) {
+      if (build_project(toml_file, 1) == 0) {
+        if (run.count > 0) {
+          run_project_with_args(toml_file, run.value, run_args);
+        }
+      }
+    }
+    goto cleanup;
+  }
 
   if (build.count > 0) {
     if (build_project(toml_file, 1) == 0) {
