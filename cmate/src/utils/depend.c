@@ -10,7 +10,7 @@
 #include "utils/utils.h"
 
 char *auto_detect_compiler() {
-  char *compilers[] = {"clang", "gcc", "cc", "zig cc", NULL};
+  char *compilers[] = {"gcc", "clang", "cc", "zig cc", "tcc", NULL};
   int len = get_array_len(compilers);
   char *detect_compiler = NULL;
 
