@@ -51,13 +51,13 @@ LDFLAGS_$(1) += $$(LDFLAGS_ALL)
 
 # Build rule for $(1)
 $$(BINDIR)/$(1): $$(OBJECTS_$(1)) | $$(BINDIR)
-	@echo "Linking $(1)"
+	@echo "LD	$(1)"
 	@$$(CC_$(1)) $$(LDFLAGS_$(1)) $$(OBJECTS_$(1)) -o $$@ $$(LDLIBS_$(1))
 
 # Object file rule for $(1)
 $$(OBJDIR)/$(1)/%.o: %.c
 	@mkdir -p $$(dir $$@)
-	@echo "Compiling $$<"
+	@echo "CC	$$<"
 	@$$(CC_$(1)) $$(CFLAGS_$(1)) -c $$< -o $$@
 endef
 
@@ -69,18 +69,17 @@ $(foreach bin,$(PROJECT_NAMES),$(eval $(call GEN_BINARY_RULES,$(bin))))
 
 # Main build target
 all: $(BINARIES)
-	@echo "Build completed: $(BINARIES)"
 
 # Release build target
 release:
 	@$(MAKE) clean
 	@$(MAKE) all CFLAGS_ALL="-DNDEBUG" LDFLAGS_ALL="-s -DNDEBUG -O3 -flto "
-	@echo "Release build completed: $(BINARIES)"
 
 clean:
-	@echo "Cleaning up..."
-	@rm -rf $(OBJDIR) $(BINDIR)
-	@echo "Cleanup completed"
+	@echo "CLEAN $(OBJDIR)"
+	@rm -rf "$(OBJDIR)"
+	@echo "CLEAN	$(BINDIR)"
+	@rm -rf "$(BINDIR)"
 
 rebuild: clean all
 
@@ -112,5 +111,6 @@ info:
 	@$(foreach bin,$(PROJECT_NAMES),echo "    $(bin): $(INCLUDE_DIRS_$(bin))";)
 	@echo "  Binary outputs: $(BINARIES)"
 	@echo "  Project names: $(PROJECT_NAMES)"
+
 
 
