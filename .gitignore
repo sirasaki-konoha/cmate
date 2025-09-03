@@ -7,6 +7,6 @@ compile_commands.json
 /.build_progress.total
 /.build_progress
 /Makefile
-.*~$
+.*~
 *.swp
 

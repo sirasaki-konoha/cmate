@@ -11,6 +11,7 @@
 #include "build/build.h"
 #include "main/process_makefile.h"
 #include "toml/find_toml.h"
+#include "utils/run_command_stdout.h"
 #include "utils/run_command.h"
 #include "utils/term_color.h"
 #include "utils/utils.h"
@@ -79,7 +80,7 @@ int build_project(const char *toml_file, int output) {
   INFO("Build Project (Using %d threads)\n", cpu_threads);
 
   char *args[] = {"make", parallel, NULL};
-  if (!run_command_stderr_only("make", args)) {
+  if (!run_command_stdout("make", args)) {
     INFO("Build completed successfully.\n");
     free(args[1]);
     goto cleanup;
