@@ -79,8 +79,8 @@ int build_project(const char *toml_file, int output) {
 
   INFO("Build Project (Using %d threads)\n", cpu_threads);
 
-  char *args[] = {"make", parallel, NULL};
-  if (!run_command_stdout("make", args)) {
+  char *args[] = {"gmake", parallel, NULL};
+  if (!run_command_stdout("gmake", args)) {
     INFO("Build completed successfully.\n");
     free(args[1]);
     goto cleanup;
@@ -90,8 +90,8 @@ int build_project(const char *toml_file, int output) {
     ERR("If the issue persists, please check your Cmate.toml configuration.\n");
 
     INFO("Cleaning up\n");
-    char *args_clean[] = {"make", "clean", NULL};
-    if (run_command_stderr_only("make", args_clean))
+    char *args_clean[] = {"gmake", "clean", NULL};
+    if (run_command_stderr_only("gmake", args_clean))
       ERR("Failed to clean up after build failure.\n");
 
     ret = 1;

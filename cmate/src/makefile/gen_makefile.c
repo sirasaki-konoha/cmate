@@ -1,13 +1,14 @@
-#include "makefile/gen_makefile.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "makefile/embed_mkfile.h"
+#include "makefile/gen_makefile.h"
 #include "toml/toml_utils.h"
 #include "tomlc99/toml.h"
 #include "utils/depend.h"
+#include "utils/run_command.h"
 #include "utils/term_color.h"
 #include "utils/utils.h"
 
@@ -76,6 +77,19 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version,
     free(project_names_line);
     return NULL;
   }
+
+  
+  char *args[] = {"gmake", "--version", NULL};
+  if (run_command("gmake", args) != 1) {
+      info("make: gmake\n");
+  }else {
+      ERR("GNU Make is not available!\n");
+      ERR("Please install gnu make and run cmate");
+      free(project_names_line);
+      free(all_vars);
+      return NULL;
+  }
+
 
   for (int i = 0; i < count; ++i) {
     toml_parsed_t *p = &parsed[i];

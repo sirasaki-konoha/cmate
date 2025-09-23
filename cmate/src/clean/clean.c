@@ -54,10 +54,10 @@ int clean_project(const char *toml_file) {
     return 1;
   }
 
-  char *args[] = {"make", "clean", NULL};
+  char *args[] = {"gmake", "clean", NULL};
 
   INFO("Cleaning project...\n");
-  if (run_command_stderr_only("make", args)) {
+  if (run_command_stderr_only("gmake", args)) {
     ERR("Clean failed\n");
     free(toml_full_path);
     free(toml_dir);
