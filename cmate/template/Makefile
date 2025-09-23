@@ -51,13 +51,13 @@ LDFLAGS_$(1) += $$(LDFLAGS_ALL)
 
 # Build rule for $(1)
 $$(BINDIR)/$(1): $$(OBJECTS_$(1)) | $$(BINDIR)
-	@echo "LD	$(1)"
+	@echo "  LD	$(1)"
 	@$$(CC_$(1)) $$(LDFLAGS_$(1)) $$(OBJECTS_$(1)) -o $$@ $$(LDLIBS_$(1))
 
 # Object file rule for $(1)
 $$(OBJDIR)/$(1)/%.o: %.c
 	@mkdir -p $$(dir $$@)
-	@echo "CC	$$<"
+	@echo "  CC	$$<"
 	@$$(CC_$(1)) $$(CFLAGS_$(1)) -c $$< -o $$@
 endef
 
