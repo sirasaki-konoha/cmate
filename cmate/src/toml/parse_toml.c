@@ -22,7 +22,8 @@ toml_parsed_t *parse_toml(const char *path, int *out_count) {
 
   toml_array_t *binary_projects = toml_array_in(conf, "bin");
   int bin_count = binary_projects ? toml_array_nelem(binary_projects) : 0;
-  if (out_count) *out_count = bin_count;
+  if (out_count)
+    *out_count = bin_count;
 
   toml_parsed_t *parsed = calloc(bin_count, sizeof(toml_parsed_t));
   if (!parsed) {

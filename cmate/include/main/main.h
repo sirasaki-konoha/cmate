@@ -1,27 +1,26 @@
 #ifndef _MAIN_H
 #define _MAIN_H
+#include <utils/stb_ds.h>
 
 /* Cross-platform support */
 #ifdef _WIN32
-#include <direct.h>
-#include <windows.h>
+/* Windows */
 
 #include "windows/windows_support.h"
-
+#include <direct.h>
+#include <windows.h>
 #define MKDIR(dir) _mkdir(dir)
 #define chdir(x) _chdir(x)
 #define getcwd(x, y) _getcwd(x, y)
-
 #else
-
+/* POSIX */
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "unistd.h"
-#include "utils/term_color.h"
-
+#include <unistd.h>
+#include <utils/term_color.h>
 #define MKDIR(dir) mkdir(dir, 0755)
-#endif
+#endif /* _WIN32 */
 
 #include <errno.h>
 #include <stdio.h>
@@ -48,7 +47,7 @@
 
 #define CMATE_VERSION "1.2"
 
-#define CMATE_COPYRIGHT \
+#define CMATE_COPYRIGHT                                                        \
   "Copyright (C) 2025 noa-vliz\nModified by rock-db (c) 2025"
 #define CMATE_LICENSE "Licensed under the MIT License."
 #define CMATE_SOURCE "Source: https://github.com/rock-db/cmate"
