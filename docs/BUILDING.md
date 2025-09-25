@@ -7,7 +7,7 @@ This document explains how to build **cmate** from source.
 ## 🔁 1. Clone the repository
 
 ```sh
-git clone https://github.com/rock-db/cmate
+git clone https://github.com/sirasaki-konoha/cmate
 cd cmate
 ````
 
@@ -30,13 +30,13 @@ You can build cmate in two ways:
 * 🧪 **Debug build** (default):
 
   ```sh
-  make
+  gmake
   ```
 
 * 🚀 **Release build** (optimized):
 
   ```sh
-  make release
+  gmake release
   ```
 
 ---
@@ -46,7 +46,7 @@ You can build cmate in two ways:
 Make sure the following tools are installed:
 
 * A C compiler (`gcc`, `clang`, or `zig cc`)
-* `make`
+* `gmake` (GNU Make)
 * `sh` (POSIX-compliant shell)
 
 > The build system automatically picks the first available compiler.
