@@ -81,6 +81,7 @@ int main(int argc, char **argv) {
   char *output_file = NULL;
   char *toml_file = NULL;
   int nerrors = 0;
+  int work = 0;
 
   arrput(args, &help);
   arrput(args, &output);
@@ -118,7 +119,7 @@ int main(int argc, char **argv) {
       exit_code = EXIT_FAILURE;
       goto cleanup;
     }
-    goto cleanup;
+    work += 1;
   }
 
   output_file =
@@ -127,19 +128,12 @@ int main(int argc, char **argv) {
 
   if (run.count > 0) {
     run_project_with_args(toml_file, run.value, run_args);
-    goto cleanup;
+    work += 1;
   }
 
   if (clean.count > 0) {
     clean_project(toml_file);
-    if (build.count > 0) {
-      if (build_project(toml_file, 1) == 0) {
-        if (run.count > 0) {
-          run_project_with_args(toml_file, run.value, run_args);
-        }
-      }
-    }
-    goto cleanup;
+    work += 1;
   }
 
   if (build.count > 0) {
@@ -148,6 +142,10 @@ int main(int argc, char **argv) {
         run_project_with_args(toml_file, run.value, run_args);
       }
     }
+    work += 1;
+  }
+  
+  if (work) {
     goto cleanup;
   }
 

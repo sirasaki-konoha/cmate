@@ -5,13 +5,14 @@
 #ifdef _WIN32
 #include <direct.h>
 #include <windows.h>
-
 #include "windows/windows_support.h"
+
 #define MKDIR(dir) _mkdir(dir)
 #define chdir(x) _chdir(x)
 #define getcwd(x, y) _getcwd(x, y)
 
 #else
+
 #include <sys/stat.h>
 #include <sys/types.h>
 
