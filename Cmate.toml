@@ -17,27 +17,27 @@ compiler = "auto"
 # Note: Do not include optimization flags or linker-specific options here
 flags = "-Wall -Wextra -std=c99"
 
-# reelase option
+# release option
 # flags = "-Wall -Wextra -std=c99 -DNDEBUG"
 
 # Linker flags for linking phase
 # Include optimization flags, link-time optimization, and linker-specific options
-# linkflags = [
-#     "-O2",                                    # Optimization level 2
-#     "-DDEBUG",                                # Define DEBUG constant
-# ]
+linkflags = [
+    "-O2",                                    # Optimization level 2
+    "-DDEBUG",                                # Define DEBUG constant
+]
 
 # release flags
- linkflags = [
-    "-O2",                                    # Optimization level 2
-    "-flto",                                  # Link-time optimization
-    "-fno-asynchronous-unwind-tables",       # Disable async unwind tables
-    "-fno-unwind-tables",                    # Disable unwind tables
-    "-fno-exceptions",                       # Disable exception handling
-    "-DNDEBUG",                              # Define NDEBUG for release build
-    "-s"                                    # Strip debug symbols
-    #"-static"                                # Static linking
-]
+#linkflags = [
+#    "-O2",                                    # Optimization level 2
+#    "-flto",                                  # Link-time optimization
+#    "-fno-asynchronous-unwind-tables",       # Disable async unwind tables
+#    "-fno-unwind-tables",                    # Disable unwind tables
+#    "-fno-exceptions",                       # Disable exception handling
+#    "-DNDEBUG",                              # Define NDEBUG for release build
+#    "-s"                                    # Strip debug symbols
+#    "-static"                                # Static linking
+#]
 
 
 # Source directories containing .c files
