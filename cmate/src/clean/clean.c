@@ -10,7 +10,7 @@
 
 #include "clean/clean.h"
 #include "toml/find_toml.h"
-#include "utils/run_command.h"
+#include "utils/run_command_stdout.h"
 #include "utils/term_color.h"
 
 #ifdef _WIN32
@@ -57,7 +57,7 @@ int clean_project(const char *toml_file) {
   char *args[] = {"gmake", "clean", NULL};
 
   INFO("Cleaning project...\n");
-  if (run_command_stderr_only("gmake", args)) {
+  if (run_command_stdout("gmake", args)) {
     ERR("Clean failed\n");
     free(toml_full_path);
     free(toml_dir);

@@ -25,7 +25,7 @@
 
 int get_cpu_threads() {
 #ifdef _WIN32
-  SYSTEM_IMFO sysinfo;
+  SYSTEM_INFO sysinfo;
   GetSystemInfo(&sysinfo);
   return sysinfo.dwNumberOfProcessors;
 #else
@@ -91,7 +91,7 @@ int build_project(const char *toml_file, int output) {
 
     INFO("Cleaning up\n");
     char *args_clean[] = {"gmake", "clean", NULL};
-    if (run_command_stderr_only("gmake", args_clean))
+    if (run_command_stdout("gmake", args_clean))
       ERR("Failed to clean up after build failure.\n");
 
     ret = 1;

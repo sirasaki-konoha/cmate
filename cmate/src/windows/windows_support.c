@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <windows.h>
 
-#include "term_color.h"
+#include "utils/term_color.h"
 
 void enable_ansi_escape_codes() {
   HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
