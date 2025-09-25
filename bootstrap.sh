@@ -15,7 +15,7 @@ if [ "$cmate_found" -eq 0 ];then
 fi
 
 
-for i in gcc clang "zig cc"; do
+for i in gcc clang cc "zig cc"; do
 	if command -v $i > /dev/null 2>&1; then
 		printf "\e[32m>> \e[0mCompiler = $i (auto)\n"
 		cat <<EOF > "Makefile"
@@ -31,7 +31,7 @@ done
 
 if [ "$found" -eq 0 ];then
 	printf "\e[31mError:\e[0m No valid C compiler was found\n" >&2
-	printf "\e[32mSupported C compilers: \e[0m'\e[33mgcc\e[0m' '\e[36mclang\x1b[0m' '\x1b[35mzig cc\x1b[0m'\n" >&2
+	printf "\e[32mSupported C compilers: \e[0m'\e[33mgcc\e[0m' '\e[36mclang\x1b[0m' '\x1b[34mcc\x1b[0m' '\x1b[35mzig cc\x1b[0m'\n" >&2
 	exit 1
 fi
 

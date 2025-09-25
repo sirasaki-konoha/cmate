@@ -25,7 +25,7 @@ int process_makefile(const char *toml_file, const char *output_file,
   char *makefile_content = gen_makefile(tml, count, CMATE_VERSION, output);
 
   if (!makefile_content) {
-    ERR("Failed to generate Makefile content\n");
+    ERR("Failed to generate Makefile\n");
     free_toml_parsed(tml, count);
     return 1;
   }

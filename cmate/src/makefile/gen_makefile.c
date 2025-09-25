@@ -84,7 +84,7 @@ char *gen_makefile(toml_parsed_t *parsed, int count, const char *cmate_version,
     info("make: gmake\n");
   } else {
     ERR("GNU Make is not available!\n");
-    ERR("Please install gnu make and run cmate");
+    ERR("Please install gnu make and run cmate\n");
     free(project_names_line);
     free(all_vars);
     return NULL;
