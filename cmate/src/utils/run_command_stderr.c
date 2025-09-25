@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-#include "utils/utils.h"
-
 #ifdef _WIN32
 #include <windows.h>
 int run_command_stderr_only(const char *cmd, char *const argv[]) {

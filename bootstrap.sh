@@ -16,11 +16,11 @@ if [ "$cmate_found" -eq 0 ];then
 fi
 
 
-if ! command -v "gmake" 2>&1 >/dev/null; then
-	printf "\e[31mError:\e[0m GNU Make not found!\n" >&2
-	printf "Please install GNU Make and retry bootstrap.sh\n" >&2
-	exit 1
-fi
+# if ! command -v "gmake" 2>&1 >/dev/null; then
+# 	printf "\e[31mError:\e[0m GNU Make not found!\n" >&2
+# 	printf "Please install GNU Make and retry bootstrap.sh\n" >&2
+# 	exit 1
+# fi
 
 for i in gcc clang cc "zig cc"; do
 	if command -v $i > /dev/null 2>&1; then

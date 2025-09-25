@@ -144,7 +144,7 @@ int main(int argc, char **argv) {
     }
     work += 1;
   }
-  
+
   if (work) {
     goto cleanup;
   }

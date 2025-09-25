@@ -4,7 +4,6 @@
 
 #include "makefile/gen_makefile.h"
 #include "toml/toml_utils.h"
-#include "tomlc99/toml.h"
 #include "utils/run_command.h"
 #include "utils/term_color.h"
 #include "utils/utils.h"

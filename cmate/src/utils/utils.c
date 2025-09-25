@@ -7,8 +7,6 @@
 
 #include "file_io/file_io.h"
 #include "makefile/embed_mkfile.h"
-#include "toml/toml_utils.h"
-#include "tomlc99/toml.h"
 #include "utils/term_color.h"
 
 char *format_string(const char *restrict __format, ...) {

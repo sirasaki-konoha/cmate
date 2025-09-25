@@ -8,12 +8,6 @@
 #include <unistd.h>
 #endif
 
-#include "build/build.h"
-#include "file_io/file_io.h"
-#include "main/process_makefile.h"
-#include "toml/toml_utils.h"
-#include "utils/run_command.h"
-#include "utils/term_color.h"
 #include "utils/utils.h"
 
 #ifdef _WIN32
@@ -23,7 +17,7 @@
 
 #define CWD_SIZE 1024
 
-char* get_toml_dir(const char* toml_file) {
+char *get_toml_dir(const char *toml_file) {
   int dirs = 0;
   char old_dir[CWD_SIZE];
 
@@ -33,11 +27,11 @@ char* get_toml_dir(const char* toml_file) {
     return NULL;
   }
 
-  char* cwd = calloc(CWD_SIZE, sizeof(char));
+  char *cwd = calloc(CWD_SIZE, sizeof(char));
   if (!cwd) return NULL;
 
   while (1) {
-    FILE* f = fopen(toml_file, "r");
+    FILE *f = fopen(toml_file, "r");
     // if toml found. return found directory
     if (f != NULL) {
       fclose(f);
@@ -72,21 +66,21 @@ char* get_toml_dir(const char* toml_file) {
   }
 }
 
-char* get_toml_file(const char* toml_file) {
+char *get_toml_file(const char *toml_file) {
   int dirs = 0;
   char old_dir[CWD_SIZE];
-  
+
   // get current directory.
   if (getcwd(old_dir, sizeof(old_dir)) == NULL) {
     perror("failed to get current dir");
     return NULL;
   }
 
-  char* cwd = calloc(CWD_SIZE, sizeof(char));
+  char *cwd = calloc(CWD_SIZE, sizeof(char));
   if (!cwd) return NULL;
 
   while (1) {
-    FILE* f = fopen(toml_file, "r");
+    FILE *f = fopen(toml_file, "r");
     // if file found. return file's full path
     if (f != NULL) {
       fclose(f);
@@ -96,7 +90,7 @@ char* get_toml_file(const char* toml_file) {
 #else
         cwd = format_string("%s/%s", cwd, toml_file);
 #endif
-	// return to old directory
+        // return to old directory
         if (chdir(old_dir) != 0) perror("failed to return old dir");
         return cwd;
       } else {

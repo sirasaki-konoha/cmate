@@ -11,7 +11,6 @@
 #include "build/build.h"
 #include "main/process_makefile.h"
 #include "toml/find_toml.h"
-#include "utils/run_command.h"
 #include "utils/run_command_stdout.h"
 #include "utils/term_color.h"
 #include "utils/utils.h"

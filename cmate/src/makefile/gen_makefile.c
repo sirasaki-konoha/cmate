@@ -7,7 +7,6 @@
 
 #include "makefile/embed_mkfile.h"
 #include "toml/toml_utils.h"
-#include "tomlc99/toml.h"
 #include "utils/depend.h"
 #include "utils/run_command.h"
 #include "utils/term_color.h"
