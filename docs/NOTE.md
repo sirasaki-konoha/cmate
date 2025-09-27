@@ -35,6 +35,7 @@ Below are notes to ensure consistent, portable release builds.
 ```bash
 file ./cmate
 # Output should include: "statically linked"
+```
 
 ---
 

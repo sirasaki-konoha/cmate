@@ -14,7 +14,7 @@ It simplifies project setup and build management for C projects through declarat
 
 - Generate a `Makefile` from a TOML-based project description.
 - Initialize a new project with `src/`, `include/`, and a working `main.c`.
-- Support for `--build` to immediately generate and run `make`.
+- Support for `build` to immediately generate and run `make`.
 - Works cross-platform (POSIX + Windows with ANSI enabled).
 - MIT licensed.
 
