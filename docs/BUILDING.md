@@ -1,6 +1,6 @@
 # 🚧 Building cmate
 
-This document explains how to build **cmate** from source.
+This document explains how to build **cmate-rs** from source.
 
 ---
 
@@ -13,30 +13,20 @@ cd cmate
 
 ---
 
-## 🛠️ 2. Run the bootstrap script
-
-This prepares the build environment.
-
-```sh
-./bootstrap.sh
-```
-
----
-
-## 🧱 3. Build the project
+## 🧱 2. Build the project
 
 You can build cmate in two ways:
 
-* 🧪 **Debug build** (default):
+* 🧪 **Debug build** :
 
   ```sh
-  gmake
+  cargo build
   ```
 
 * 🚀 **Release build** (optimized):
 
   ```sh
-  gmake release
+  cargo build --release
   ```
 
 ---
@@ -45,17 +35,13 @@ You can build cmate in two ways:
 
 Make sure the following tools are installed:
 
-* A C compiler (`gcc`, `clang`, or `zig cc`)
-* `gmake` (GNU Make)
-* `sh` (POSIX-compliant shell)
-
-> The build system automatically picks the first available compiler.
+* Rust tools (cargo, rustc, ...etc)
 
 ---
 
 ## 📁 Output
 
-Built binaries will appear in the `bin/` directory.
+Built binaries will appear in the `target/<release or debug>` directory.
 
 ---
 
@@ -63,7 +49,6 @@ Built binaries will appear in the `bin/` directory.
 
 If you encounter issues during build:
 
-* Make sure your compiler is available (`which gcc`, `clang`, etc.)
-* Check permissions on `bootstrap.sh`: `chmod +x bootstrap.sh`
-* Run `make clean` and try again
+* Make sure your rust environment is available (`which cargo`, `rustc --version`, etc.)
+* Run `cargo build` and try again
 
