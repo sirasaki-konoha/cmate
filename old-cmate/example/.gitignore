@@ -1,0 +1,7 @@
+/deps
+/bin
+/Makefile
+/.cache
+/.vs
+/.cmate
+

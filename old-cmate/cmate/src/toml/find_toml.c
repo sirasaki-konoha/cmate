@@ -1,0 +1,121 @@
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
+
+#include "utils/utils.h"
+
+#ifdef _WIN32
+#define chdir(x) _chdir(x)
+#define getcwd(x, y) _getcwd(x, y)
+#endif
+
+#define CWD_SIZE 1024
+
+char *get_toml_dir(const char *toml_file) {
+  int dirs = 0;
+  char old_dir[CWD_SIZE];
+
+  // get current directory.
+  if (getcwd(old_dir, sizeof(old_dir)) == NULL) {
+    perror("failed to get current dir");
+    return NULL;
+  }
+
+  char *cwd = calloc(CWD_SIZE, sizeof(char));
+  if (!cwd) return NULL;
+
+  while (1) {
+    FILE *f = fopen(toml_file, "r");
+    // if toml found. return found directory
+    if (f != NULL) {
+      fclose(f);
+      if (getcwd(cwd, CWD_SIZE) != NULL) {
+        if (chdir(old_dir) != 0) perror("failed to return old dir");
+        return cwd;
+      } else {
+        perror("getcwd");
+        free(cwd);
+        return NULL;
+      }
+    } else if (errno == ENOENT) {
+      // if toml file is not found and tried 3 times. exit
+      if (dirs == 3) {
+        free(cwd);
+        return NULL;
+      }
+
+      // if toml file not found and not tried 3 times. return to old directory
+      if (chdir("..") != 0) {
+        perror("chdir failed");
+        free(cwd);
+        return NULL;
+      }
+      dirs++;
+      continue;
+    } else {
+      perror("fopen");
+      free(cwd);
+      return NULL;
+    }
+  }
+}
+
+char *get_toml_file(const char *toml_file) {
+  int dirs = 0;
+  char old_dir[CWD_SIZE];
+
+  // get current directory.
+  if (getcwd(old_dir, sizeof(old_dir)) == NULL) {
+    perror("failed to get current dir");
+    return NULL;
+  }
+
+  char *cwd = calloc(CWD_SIZE, sizeof(char));
+  if (!cwd) return NULL;
+
+  while (1) {
+    FILE *f = fopen(toml_file, "r");
+    // if file found. return file's full path
+    if (f != NULL) {
+      fclose(f);
+      if (getcwd(cwd, CWD_SIZE) != NULL) {
+#ifdef _WIN32
+        cwd = format_string("%s\\%s", cwd, toml_file);
+#else
+        cwd = format_string("%s/%s", cwd, toml_file);
+#endif
+        // return to old directory
+        if (chdir(old_dir) != 0) perror("failed to return old dir");
+        return cwd;
+      } else {
+        perror("getcwd");
+        free(cwd);
+        return NULL;
+      }
+    } else if (errno == ENOENT) {
+      // if toml file is not found with tried 3. exit
+      if (dirs == 3) {
+        free(cwd);
+        return NULL;
+      }
+      // if toml file is not found. go to parent
+      if (chdir("..") != 0) {
+        perror("chdir failed");
+        free(cwd);
+        return NULL;
+      }
+      dirs++;
+      continue;
+    } else {
+      perror("fopen");
+      free(cwd);
+      return NULL;
+    }
+  }
+}

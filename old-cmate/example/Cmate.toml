@@ -1,0 +1,21 @@
+[[bin]]
+project = "example1"
+compiler = "auto"
+flags = "-Wall -Wextra -std=c99 -O2 -g"
+src = ["example1/src"]
+include = ["example1/include"]
+compile = []
+libs = []
+
+[[bin]]
+project = "example2"
+compiler = "auto"
+flags = "-Wall -Wextra -std=c99 -O2 -g"
+src = ["example2/src"]
+include = ["example2/include"]
+compile = []
+libs = []
+
+
+
+
