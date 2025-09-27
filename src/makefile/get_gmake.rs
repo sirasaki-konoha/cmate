@@ -1,5 +1,5 @@
-use crate::err;
-use std::process::{self, Command, Stdio};
+use crate::{err, info};
+use std::process::{self, Command};
 
 pub fn get_gmake() -> String {
     if which::which("gmake").is_ok() {
@@ -19,7 +19,8 @@ pub fn get_gmake() -> String {
 
     let splited: Vec<&str> = stdout.split_whitespace().collect();
 
-    if splited[1..2].join(" ") == "GNU Make" {
+    if splited[0..2].join(" ") == "GNU Make" {
+        info!("Found {}", splited[0..2].join(" "));
         return "make".to_string();
     } else {
         err!("No available GNU Make found. Please install latest GNU Make");
