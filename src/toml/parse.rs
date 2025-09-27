@@ -1,5 +1,5 @@
-use crate::toml::toml_structure::{Bin, CmateToml};
-use crate::{err, info};
+use crate::err;
+use crate::toml::toml_structure::CmateToml;
 use std::error::Error;
 use toml;
 

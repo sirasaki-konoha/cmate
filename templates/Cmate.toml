@@ -1,0 +1,81 @@
+# Project configuration file (cmate)
+# ======================================================
+# Each [[bin]] table defines a build target (executable project).
+# You can define multiple [[bin]] tables for multiple binaries.
+
+# [Required] Specify the default compiler for the entire project
+# The compiler specified here will be used throughout the project.
+# You can use any compiler you want, or 'auto' (automatically detects the host's C compiler).
+default_compiler = "auto"
+
+[[bin]]
+# [Required] Project name (used for executable name)
+project = "myproject"
+
+# Use "auto" to automatically detect the host's default C compiler,
+# or leave unspecified to use the default compiler.
+# compiler = "auto"
+
+# Compiler flags for compilation phase
+# Include warnings, language standards, preprocessor definitions, etc.
+# Note: Do not include optimization flags or linker-specific options here
+flags = ["-Wall", "-Wextra", "-std=c99"]
+
+# release option
+# flags = "-Wall -Wextra -std=c99 -DNDEBUG"
+
+# Linker flags for linking phase
+# Include optimization flags, link-time optimization, and linker-specific options
+ldflags = [
+    "-O2",                                    # Optimization level 2
+    "-DDEBUG",                                # Define DEBUG constant
+]
+
+# release flags
+#ldflags = [
+#    "-O2",                                    # Optimization level 2
+#    "-flto",                                  # Link-time optimization
+#    "-fno-asynchronous-unwind-tables",       # Disable async unwind tables
+#    "-fno-unwind-tables",                    # Disable unwind tables
+#    "-fno-exceptions",                       # Disable exception handling
+#    "-DNDEBUG",                              # Define NDEBUG for release build
+#    "-s"                                    # Strip debug symbols
+#    "-static"                                # Static linking
+#]
+
+
+# Source directories containing .c files
+# Default: ["src"] (if not specified)
+# Multiple directories can be specified as an array
+# src = ["src/"]
+
+# Include directories containing .h files
+# Default: ["include"] (if not specified)
+# Multiple directories can be specified as an array
+# include = []
+
+# [Advanced] Specific files to compile (overrides automatic src discovery)
+# Use this to compile particular files when auto-detection isn't desired
+# Leave empty [] to use automatic source file discovery from 'src' directories
+# Example: ["src/main.c", "src/utils.c"]
+# compile = []
+
+# External libraries to link against
+# Library names without the 'lib' prefix and '.so/.a' suffix
+# The '-l' flag will be added automatically during linking
+# Example: ["m"] => links with -lm (math library)
+#          ["dl"] => links with -ldl (dynamic linking library)
+#          ["pthread"] => links with -lpthread (POSIX threads)
+libs = []
+
+# ======================================================
+# Path Resolution:
+# - All paths are relative to this configuration file's location
+# - Use forward slashes (/) for cross-platform compatibility
+#
+# Automatic Behavior:
+# - If 'src' is omitted: automatically searches in ./src/
+# - If 'include' is omitted: automatically searches in ./include/
+# - Empty arrays [] will use default behavior
+# - Commented-out fields will use default values
+# ======================================================

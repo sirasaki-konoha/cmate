@@ -1,4 +1,7 @@
 
+# ==========================================
+# Global Build Settings
+# ==========================================
 # Global flags for release builds
 CFLAGS_ALL :=
 LDFLAGS_ALL :=
@@ -6,35 +9,70 @@ LDFLAGS_ALL :=
 # Directory settings
 OBJDIR := .cmate/deps/object
 BINDIR := bin
+DEPDIR := .cmate/deps
 
-# Default GOAL
+# Build mode detection
+BUILD_MODE := debug
+ifeq ($(MAKECMDGOALS),release)
+    BUILD_MODE := release
+endif
+ifeq ($(MAKECMDGOALS),r)
+    BUILD_MODE := release
+endif
+
+# Colors for output (if terminal supports it)
+ifneq (,$(findstring xterm,${TERM}))
+    BOLD := $(shell tput bold)
+    GREEN := $(shell tput setaf 2)
+    BLUE := $(shell tput setaf 4)
+    YELLOW := $(shell tput setaf 3)
+    RED := $(shell tput setaf 1)
+    RESET := $(shell tput sgr0)
+else
+    BOLD :=
+    GREEN :=
+    BLUE :=
+    YELLOW :=
+    RED :=
+    RESET :=
+endif
+
+# ==========================================
+# Default Target & Binary List
+# ==========================================
 .DEFAULT_GOAL := all
-
-# List of all binaries (should be set by the generator)
 BINARIES := $(addprefix $(BINDIR)/, $(PROJECT_NAMES))
 
-# Ensure bin directory exists
-$(BINDIR):
-	@mkdir -p $(BINDIR)
-
+# ==========================================
+# Utility Functions
+# ==========================================
+# Enhanced source discovery with better performance
 define get_sources
-    $(foreach dir,$(SRCDIRS_$(1)),\
-        $(wildcard $(dir)/*.c) \
-        $(wildcard $(dir)/*/*.c) \
-        $(wildcard $(dir)/*/*/*.c) \
-        $(wildcard $(dir)/*/*/*/*.c) \
-        $(wildcard $(dir)/*/*/*/*/*.c) \
-        $(wildcard $(dir)/*/*/*/*/*/*.c) \
-        $(wildcard $(dir)/*/*/*/*/*/*/*.c) \
-        $(wildcard $(dir)/*/*/*/*/*/*/*/*.c) \
-        $(wildcard $(dir)/*/*/*/*/*/*/*/*/*.c) \
-        $(wildcard $(dir)/*/*/*/*/*/*/*/*/*/*.c))
+    $(shell find $(SRCDIRS_$(1)) -name "*.c" 2>/dev/null || \
+        echo $(foreach dir,$(SRCDIRS_$(1)),\
+            $(wildcard $(dir)/*.c) \
+            $(wildcard $(dir)/*/*.c) \
+            $(wildcard $(dir)/*/*/*.c) \
+            $(wildcard $(dir)/*/*/*/*.c) \
+            $(wildcard $(dir)/*/*/*/*/*.c)))
 endef
 
-# Auto-detect source files for each binary
+# Progress tracking
+TOTAL_SOURCES := $(words $(call get_sources,cmate))
+CURRENT_SOURCE := 0
+
+# ==========================================
+# Directory Creation Rules
+# ==========================================
+$(BINDIR) $(OBJDIR) $(DEPDIR):
+	@printf "$(BLUE)CREATE$(RESET)\t%s\n" "$@"
+	@mkdir -p "$@"
+
+# ==========================================
+# Binary Generation Rules
+# ==========================================
 define GEN_BINARY_RULES
-# ===== $(1) =====
-# Variables for $(1)
+# ===== Configuration for $(1) =====
 SRCDIRS_$(1) := $$(SRCDIRS_$(1))
 INCLUDE_DIRS_$(1) := $$(INCLUDE_DIRS_$(1))
 EXTRA_SOURCES_$(1) := $$(EXTRA_SOURCES_$(1))
@@ -42,75 +80,146 @@ LDLIBS_$(1) := $$(LDLIBS_$(1))
 LDFLAGS_$(1) := $$(LDFLAGS_$(1))
 CFLAGS_$(1) := $$(CFLAGS_$(1))
 CC_$(1) := $$(CC_$(1))
-SOURCES_$(1) := $$(call get_sources,$(1))
-SOURCES_$(1) := $$(SOURCES_$(1)) $$(EXTRA_SOURCES_$(1))
+
+# Source and object file discovery
+SOURCES_$(1) := $$(call get_sources,$(1)) $$(EXTRA_SOURCES_$(1))
 OBJECTS_$(1) := $$(patsubst %.c,$$(OBJDIR)/$(1)/%.o,$$(SOURCES_$(1)))
 INCLUDES_$(1) := $$(addprefix -I,$$(INCLUDE_DIRS_$(1)))
-CFLAGS_$(1) += $$(INCLUDES_$(1)) $$(CFLAGS_ALL)
+DEPS_$(1) := $$(patsubst %.c,$$(DEPDIR)/$(1)/%.d,$$(SOURCES_$(1)))
+
+# Combine flags
+CFLAGS_$(1) += $$(INCLUDES_$(1)) $$(CFLAGS_ALL) -MMD -MP -MF $$(DEPDIR)/$(1)/$$*.d
 LDFLAGS_$(1) += $$(LDFLAGS_ALL)
 
-# Build rule for $(1)
+# Main binary linking rule
 $$(BINDIR)/$(1): $$(OBJECTS_$(1)) | $$(BINDIR)
-	@echo "  LD	$(1)"
+	@printf "$(GREEN)$(BOLD)LINK$(RESET)\t$(1) [$(BUILD_MODE)]\n"
 	@$$(CC_$(1)) $$(LDFLAGS_$(1)) $$(OBJECTS_$(1)) -o $$@ $$(LDLIBS_$(1))
+	@printf "$(GREEN)SUCCESS$(RESET)\tBinary created: $$@\n"
 
-# Object file rule for $(1)
-$$(OBJDIR)/$(1)/%.o: %.c
-	@mkdir -p $$(dir $$@)
-	@echo "  CC	$$<"
+# Object file compilation rule with dependency generation
+$$(OBJDIR)/$(1)/%.o: %.c | $$(OBJDIR) $$(DEPDIR)
+	@mkdir -p $$(dir $$@) $$(dir $$(DEPDIR)/$(1)/$$*.d)
+	@printf "$(YELLOW)CC$(RESET)\t$$< -> $$@\n"
 	@$$(CC_$(1)) $$(CFLAGS_$(1)) -c $$< -o $$@
+
+# Include dependency files
+-include $$(DEPS_$(1))
 endef
 
-# Generate rules for each binary
+# Generate rules for each project
 $(foreach bin,$(PROJECT_NAMES),$(eval $(call GEN_BINARY_RULES,$(bin))))
 
-# Default targets
-.PHONY: all clean rebuild help info release
+# ==========================================
+# Phony Targets
+# ==========================================
+.PHONY: all clean rebuild help info release debug install uninstall test
 
-# Main build target
-all: $(BINARIES)
+# ==========================================
+# Main Build Targets
+# ==========================================
+all: 
+	@printf "$(BLUE)$(BOLD)Building all targets...$(RESET)\n"
+	@$(MAKE) --no-print-directory $(BINARIES)
+	@printf "$(GREEN)$(BOLD)Build complete!$(RESET)\n"
 
-# Release build target
-release:
-	@$(MAKE) clean
-	@$(MAKE) all CFLAGS_ALL="-DNDEBUG" LDFLAGS_ALL="-s -DNDEBUG -O3 -flto "
+# Debug build (explicit)
+debug: CFLAGS_ALL += -g -DDEBUG -O0
+debug: LDFLAGS_ALL += -g
+debug: all
 
+# Release build with optimizations
+r: release
+release: 
+	@printf "$(BLUE)$(BOLD)Starting release build...$(RESET)\n"
+	@$(MAKE) --no-print-directory clean
+	@$(MAKE) --no-print-directory all \
+		CFLAGS_ALL="-DNDEBUG -O3 -flto -march=native" \
+		LDFLAGS_ALL="-s -O3 -flto"
+	@printf "$(GREEN)$(BOLD)Release build complete!$(RESET)\n"
+
+# ==========================================
+# Cleanup Targets
+# ==========================================
+c: clean
 clean:
-	@echo "CLEAN $(OBJDIR)"
+	@printf "$(RED)CLEAN$(RESET)\t%s\n" "$(OBJDIR)"
 	@rm -rf "$(OBJDIR)"
-	@echo "CLEAN	$(BINDIR)"
+	@printf "$(RED)CLEAN$(RESET)\t%s\n" "$(BINDIR)"
 	@rm -rf "$(BINDIR)"
+	@printf "$(RED)CLEAN$(RESET)\t%s\n" "$(DEPDIR)"
+	@rm -rf "$(DEPDIR)"
+	@printf "$(GREEN)Cleanup complete$(RESET)\n"
 
-rebuild: clean all
+rebuild: 
+	@printf "$(BLUE)$(BOLD)Rebuilding project...$(RESET)\n"
+	@$(MAKE) --no-print-directory clean
+	@$(MAKE) --no-print-directory all
 
-# Help
+# ==========================================
+# Utility Targets
+# ==========================================
+# Installation (basic)
+install: release
+	@printf "$(BLUE)INSTALL$(RESET)\tInstalling to /usr/local/bin/\n"
+	@sudo cp $(BINARIES) /usr/local/bin/
+	@printf "$(GREEN)Installation complete$(RESET)\n"
+
+uninstall:
+	@printf "$(RED)UNINSTALL$(RESET)\tRemoving from /usr/local/bin/\n"
+	@sudo rm -f $(addprefix /usr/local/bin/, $(PROJECT_NAMES))
+
+# Basic test runner
+test: all
+	@printf "$(BLUE)TEST$(RESET)\tRunning basic tests...\n"
+	@for binary in $(BINARIES); do \
+		if [ -f "$$binary" ]; then \
+			printf "$(GREEN)✓$(RESET) $$binary exists\n"; \
+		else \
+			printf "$(RED)✗$(RESET) $$binary missing\n"; \
+		fi; \
+	done
+
+# Help system
 help:
-	@echo "Usage: make [target]"
-	@echo
-	@echo "Available targets:"
-	@echo "  all      Build all binaries (default)"
-	@echo "  release  Build optimized release version"
-	@echo "  clean    Remove generated files"
-	@echo "  rebuild  Clean and then build all"
-	@echo "  help     Show this help message"
-	@echo "  info     Show project information"
-	@echo
-	@echo "Per-binary targets:"
-	@echo "  $(PROJECT_NAMES)"
-	@echo
-	@echo "This Makefile was generated by cmate $(CMATE_VERSION)."
-	@echo "If you encounter any issues or bugs, please open an issue at:"
-	@echo "  https://github.com/rock-db/cmate"
+	@printf "$(BOLD)cmate Makefile Help$(RESET)\n"
+	@printf "==========================================\n\n"
+	@printf "$(BOLD)Usage:$(RESET) make [target]\n\n"
+	@printf "$(BOLD)Main Targets:$(RESET)\n"
+	@printf "  $(GREEN)all$(RESET)      Build all binaries (default)\n"
+	@printf "  $(GREEN)debug$(RESET)    Build with debug symbols\n"
+	@printf "  $(GREEN)release$(RESET)  Build optimized release version\n"
+	@printf "  $(GREEN)r$(RESET)        Alias for release\n\n"
+	@printf "$(BOLD)Maintenance:$(RESET)\n"
+	@printf "  $(YELLOW)clean$(RESET)    Remove all generated files\n"
+	@printf "  $(YELLOW)c$(RESET)        Alias for clean\n"
+	@printf "  $(YELLOW)rebuild$(RESET)  Clean and build all\n\n"
+	@printf "$(BOLD)Installation:$(RESET)\n"
+	@printf "  $(BLUE)install$(RESET)  Install binaries to /usr/local/bin\n"
+	@printf "  $(BLUE)uninstall$(RESET) Remove installed binaries\n\n"
+	@printf "$(BOLD)Utilities:$(RESET)\n"
+	@printf "  $(BLUE)test$(RESET)     Run basic tests\n"
+	@printf "  $(BLUE)help$(RESET)     Show this help\n"
+	@printf "  $(BLUE)info$(RESET)     Show project information\n\n"
+	@printf "$(BOLD)Per-binary targets:$(RESET) $(PROJECT_NAMES)\n\n"
+	@printf "Generated by cmate. Report issues at:\n"
+	@printf "$(BLUE)https://github.com/sirasaki-konoha/cmate$(RESET)\n"
 
-# Show project structure
+# Project information display
 info:
-	@echo "Project Structure:"
-	@echo "  Source Dirs (per binary):"
-	@$(foreach bin,$(PROJECT_NAMES),echo "    $(bin): $(SRCDIRS_$(bin))";)
-	@echo "  Include Dirs (per binary):"
-	@$(foreach bin,$(PROJECT_NAMES),echo "    $(bin): $(INCLUDE_DIRS_$(bin))";)
-	@echo "  Binary outputs: $(BINARIES)"
-	@echo "  Project names: $(PROJECT_NAMES)"
-
-
-
+	@printf "$(BOLD)Project Information$(RESET)\n"
+	@printf "==========================================\n"
+	@printf "$(BOLD)Projects:$(RESET) $(PROJECT_NAMES)\n"
+	@printf "$(BOLD)Build Mode:$(RESET) $(BUILD_MODE)\n"
+	@printf "$(BOLD)Compiler:$(RESET) $(CC_cmate)\n\n"
+	@printf "$(BOLD)Source Structure:$(RESET)\n"
+	@$(foreach bin,$(PROJECT_NAMES),\
+		printf "  $(GREEN)$(bin):$(RESET)\n"; \
+		printf "    Sources: $(SRCDIRS_$(bin))\n"; \
+		printf "    Includes: $(INCLUDE_DIRS_$(bin))\n"; \
+		printf "    Output: $(BINDIR)/$(bin)\n\n";)
+	@printf "$(BOLD)Directories:$(RESET)\n"
+	@printf "  Objects: $(OBJDIR)\n"
+	@printf "  Binaries: $(BINDIR)\n"
+	@printf "  Dependencies: $(DEPDIR)\n"
+	
