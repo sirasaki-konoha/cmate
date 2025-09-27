@@ -10,6 +10,7 @@ mod run;
 mod toml;
 
 use clap::{Parser, Subcommand};
+use std::env;
 use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -58,7 +59,7 @@ fn main() {
     let config = Config::from_cli(cli);
 
     match config.subcommand {
-        Some(cmd) => handle_subcommand(cmd),
+        Some(ref cmd) => handle_subcommand(&config, &cmd),
         None => generate_makefile(&config),
     }
 }
@@ -89,20 +90,32 @@ fn show_version() {
     info!("{}", info::CMATE_LICENSE);
 }
 
-fn handle_subcommand(cmd: SubCommands) {
+fn handle_subcommand(config: &Config, cmd: &SubCommands) {
     match cmd {
         SubCommands::Init => init::init::init(),
-        SubCommands::Build => todo!(),
+        SubCommands::Build => {
+            let (toml_dir, _) = resolve_toml_path_and_dir(&config.toml_file);
+            env::set_current_dir(&toml_dir).unwrap_or_else(|e| {
+                err!("Failed to set directory: {}", e);
+                std::process::exit(1);
+            });
+            build::build::build_project(makefile::get_gmake::get_gmake());
+        }
         SubCommands::Clean => todo!(),
         SubCommands::Run => todo!(),
     }
 }
 
 fn generate_makefile(config: &Config) {
-    let toml_path = resolve_toml_path(&config.toml_file);
+    let (toml_dir, toml_path) = resolve_toml_path_and_dir(&config.toml_file);
     let cmate_toml = read_toml_file(&toml_path);
     let parsed = parse_toml_content(cmate_toml);
     let makefile_content = makefile::gen_makefile::gen_makefile(parsed);
+
+    env::set_current_dir(&toml_dir).unwrap_or_else(|e| {
+        err!("Failed to set directory: {}", e);
+        std::process::exit(1);
+    });
 
     write_makefile(&config.makefile_output, &makefile_content);
 
@@ -112,16 +125,21 @@ fn generate_makefile(config: &Config) {
     );
 }
 
-fn resolve_toml_path(toml_file: &str) -> String {
+/// Resolve TOML path and return both directory and file path
+fn resolve_toml_path_and_dir(toml_file: &str) -> (PathBuf, String) {
     if toml_file == DEFAULT_TOML_FILE {
-        if let Some(toml_dir) = find_toml_directory(PathBuf::from(toml_file)) {
-            return toml_dir.to_string_lossy().to_string();
+        if let Some(toml_path) = find_toml_directory(PathBuf::from(".")) {
+            let toml_dir = toml_path.parent().unwrap_or(Path::new(".")).to_path_buf();
+            return (toml_dir, toml_path.to_string_lossy().to_string());
         } else {
             err!("Cmate.toml not found!");
             std::process::exit(1);
         }
     }
-    toml_file.to_string()
+
+    let path = Path::new(toml_file);
+    let dir = path.parent().unwrap_or(Path::new(".")).to_path_buf();
+    (dir, toml_file.to_string())
 }
 
 fn read_toml_file(path: &str) -> String {
@@ -168,6 +186,7 @@ fn find_toml_directory(mut base: PathBuf) -> Option<PathBuf> {
             return Some(candidate);
         }
 
+        // 親がなければもう終わり（ルートまで来た）
         if !base.pop() {
             return None;
         }

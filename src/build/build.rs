@@ -2,7 +2,7 @@ use crate::toml::toml_structure::CmateToml;
 use crate::{err, info};
 use std::process::{Command, Stdio};
 
-pub fn build_project(spec: &str, args: &[String], make: String, toml: CmateToml) {
+pub fn build_project(make: String) {
     let p = std::thread::available_parallelism().unwrap_or_else(|e| {
         err!("Failed to get cpu threads: {}", e);
         std::process::exit(1);
