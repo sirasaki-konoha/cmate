@@ -59,7 +59,7 @@ fn main() {
     let config = Config::from_cli(cli);
 
     match config.subcommand {
-        Some(ref cmd) => handle_subcommand(&config, &cmd),
+        Some(ref cmd) => handle_subcommand(&config, cmd),
         None => generate_makefile(&config),
     }
 }
@@ -92,14 +92,18 @@ fn show_version() {
 
 fn handle_subcommand(config: &Config, cmd: &SubCommands) {
     match cmd {
-        SubCommands::Init => init::init::init(),
+        SubCommands::Init => init::init_projects::init(),
         SubCommands::Build => {
             let (toml_dir, _) = resolve_toml_path_and_dir(&config.toml_file);
+
+            // TOMLファイルがあるディレクトリに移動
             env::set_current_dir(&toml_dir).unwrap_or_else(|e| {
                 err!("Failed to set directory: {}", e);
                 std::process::exit(1);
             });
-            build::build::build_project(makefile::get_gmake::get_gmake());
+
+            // ビルド実行
+            build::build_project::build_project(makefile::get_gmake::get_gmake());
         }
         SubCommands::Clean => todo!(),
         SubCommands::Run => todo!(),
@@ -107,22 +111,47 @@ fn handle_subcommand(config: &Config, cmd: &SubCommands) {
 }
 
 fn generate_makefile(config: &Config) {
+    // 元の作業ディレクトリを保存
+    let original_dir = env::current_dir().unwrap_or_else(|e| {
+        err!("Failed to get current directory: {}", e);
+        std::process::exit(1);
+    });
+
     let (toml_dir, toml_path) = resolve_toml_path_and_dir(&config.toml_file);
+
+    // TOMLファイルを読み込み（絶対パスを使用）
     let cmate_toml = read_toml_file(&toml_path);
     let parsed = parse_toml_content(cmate_toml);
     let makefile_content = makefile::gen_makefile::gen_makefile(parsed);
 
-    env::set_current_dir(&toml_dir).unwrap_or_else(|e| {
-        err!("Failed to set directory: {}", e);
-        std::process::exit(1);
-    });
+    // 出力ファイルのパスを解決
+    let output_path = if Path::new(&config.makefile_output).is_absolute() {
+        config.makefile_output.clone()
+    } else {
+        // 相対パスの場合、TOMLファイルがあるディレクトリからの相対パス
+        toml_dir
+            .join(&config.makefile_output)
+            .to_string_lossy()
+            .to_string()
+    };
 
-    write_makefile(&config.makefile_output, &makefile_content);
+    // Makefileを書き込み（元のディレクトリから）
+    write_makefile(&output_path, &makefile_content);
 
-    info!(
-        "Makefile successfully generated at {}",
-        config.makefile_output
-    );
+    // 出力パスの表示用（相対パス表示を保持）
+    let display_path = if Path::new(&config.makefile_output).is_absolute() {
+        config.makefile_output.clone()
+    } else {
+        // TOMLディレクトリからの相対パスとして表示
+        let relative_toml_dir =
+            pathdiff::diff_paths(&toml_dir, &original_dir).unwrap_or(toml_dir.clone());
+        relative_toml_dir
+            .join(&config.makefile_output)
+            .to_string_lossy()
+            .to_string()
+    };
+
+    info!("Makefile successfully generated at {}", display_path);
 }
 
 /// Resolve TOML path and return both directory and file path
@@ -138,8 +167,24 @@ fn resolve_toml_path_and_dir(toml_file: &str) -> (PathBuf, String) {
     }
 
     let path = Path::new(toml_file);
-    let dir = path.parent().unwrap_or(Path::new(".")).to_path_buf();
-    (dir, toml_file.to_string())
+
+    // 絶対パスか相対パスかに関係なく、正しく処理
+    let canonical_path = if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        env::current_dir()
+            .unwrap_or_else(|e| {
+                err!("Failed to get current directory: {}", e);
+                std::process::exit(1);
+            })
+            .join(path)
+    };
+
+    let dir = canonical_path
+        .parent()
+        .unwrap_or(Path::new("."))
+        .to_path_buf();
+    (dir, canonical_path.to_string_lossy().to_string())
 }
 
 fn read_toml_file(path: &str) -> String {
@@ -157,6 +202,14 @@ fn parse_toml_content(content: String) -> toml::toml_structure::CmateToml {
 
 fn write_makefile(output_path: &str, content: &str) {
     let makefile_path = Path::new(output_path);
+
+    // 出力ディレクトリが存在しない場合は作成
+    if let Some(parent) = makefile_path.parent() {
+        fs::create_dir_all(parent).unwrap_or_else(|e| {
+            err!("Failed to create directory {}: {}", parent.display(), e);
+            std::process::exit(1);
+        });
+    }
 
     let mut file = fs::OpenOptions::new()
         .write(true)
@@ -178,15 +231,28 @@ fn write_makefile(output_path: &str, content: &str) {
     });
 }
 
+#[allow(unused)]
 /// Find the directory containing Cmate.toml by searching upward from the given base path
 fn find_toml_directory(mut base: PathBuf) -> Option<PathBuf> {
+    // 現在のディレクトリから始める
+    let current_dir = env::current_dir().unwrap_or_else(|e| {
+        err!("Failed to get current directory: {}", e);
+        std::process::exit(1);
+    });
+
+    base = current_dir;
+
     loop {
         let candidate = base.join(DEFAULT_TOML_FILE);
+
+        // デバッグ情報（必要に応じてコメントアウト）
+        // eprintln!("Checking: {}", candidate.display());
+
         if candidate.exists() {
             return Some(candidate);
         }
 
-        // 親がなければもう終わり（ルートまで来た）
+        // 親ディレクトリに移動
         if !base.pop() {
             return None;
         }

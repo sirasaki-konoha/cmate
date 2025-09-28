@@ -21,7 +21,7 @@ fn write_to_file(filename: &str, content: &str) {
         return;
     }
 
-    let mut file = File::create(&path).unwrap_or_else(|e| {
+    let mut file = File::create(path).unwrap_or_else(|e| {
         err!("Failed to initialize {}: {}", filename, e);
         std::process::exit(1);
     });

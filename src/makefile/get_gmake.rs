@@ -21,7 +21,7 @@ pub fn get_gmake() -> String {
 
     if splited[0..2].join(" ") == "GNU Make" {
         info!("Found {}", splited[0..2].join(" "));
-        return "make".to_string();
+        "make".to_string()
     } else {
         err!("No available GNU Make found. Please install latest GNU Make");
         process::exit(1);

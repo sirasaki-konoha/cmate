@@ -1,1 +1,1 @@
-pub const MAKEFILE_TEMPLATE: &'static str = include_str!("../../templates/Makefile");
+pub const MAKEFILE_TEMPLATE: &str = include_str!("../../templates/Makefile");

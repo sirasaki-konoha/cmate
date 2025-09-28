@@ -1,4 +1,3 @@
-use crate::toml::toml_structure::CmateToml;
 use crate::{err, info};
 use std::process::{Command, Stdio};
 
@@ -10,7 +9,7 @@ pub fn build_project(make: String) {
     let mut parallel = p.get();
 
     if parallel != 1 {
-        parallel = parallel / 2;
+        parallel /= 2;
     }
 
     info!("Building project (using {} threads)", parallel);
